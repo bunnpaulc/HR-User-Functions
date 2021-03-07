@@ -1,0 +1,275 @@
+﻿@using Shared.Model
+@model Routine
+@{
+    var newRoutine = string.IsNullOrWhiteSpace(Model.Id);
+
+    ViewBag.Title = newRoutine ? "New Routine" : Model.Name;
+    ViewBag.Subtitle = "Routine Details";
+    ViewBag.Breadcrumbs = new string[] { "<a href=\"/Routine/Index\">Routines</a>" };
+}
+
+@section pagepluginstyles {
+    <link href="~/Content/assets/global/plugins/dragula/dragula.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
+}
+
+@section pageplugins {
+    <script src="~/Content/assets/global/plugins/jquery.serialize-object.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/dragula/dragula.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/jquery.fix.clone.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+}
+
+@section pagestyles {
+    <link href="~/Content/RoutineDetails.min.css" rel="stylesheet" type="text/css" />
+}
+
+@section pagescripts {
+    <script src="~/Scripts/RoutineDetails.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var newRoutine = @(newRoutine ? "true" : "false");
+    </script>
+
+    <script src="~/Scripts/DateRange.js" type="text/javascript"></script>
+}
+
+<form method="post" class="form edit-helper-form routine-details-form" action="" id="routine-form">
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <div id="routine-properties" class="col-lg-8 col-md-6 col-xs-12 pull-left">
+        <div class="form-group">
+            <label class="control-label">Type of Routine</label>
+            <select class="form-control" name="Category" @(newRoutine ? "" : "disabled")>
+                <option value="0" @(Model.Category == 0 ? "selected" : "")>Running</option>
+                <option value="2" @(Model.Category == 1 ? "selected" : "")>Cycling</option>
+                <option value="1" @(Model.Category == 2 ? "selected" : "")>Walking</option>
+                <option value="1" @(Model.Category == 3 ? "selected" : "")>CrossFit</option>
+                <option value="1" @(Model.Category == 4 ? "selected" : "")>Gym</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="control-label">Routine Name</label>
+            <input type="text" class="form-control" name="Name" value="@Model.Name" required @(newRoutine ? "" : "disabled") placeholder="e.g. Fat Burner" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">Description</label>
+            <textarea class="form-control" name="Description" required @(newRoutine ? "" : "disabled") placeholder="e.g. This routine is designed to be easy at the beginning and build up at the back end. Play some up beat music and keep your heart rate over 140bpm.">@Model.Description</textarea>
+        </div>
+        <div class="form-group radio-option">
+            <label class="control-label">Level of Difficulty</label>
+
+            <input type="radio" name="Difficulty" value="0" class="toggle" id="difficulty-easy" @(newRoutine ? "" : "disabled") @(!newRoutine && Model.Difficulty == 0 ? "checked" : "") />
+            <label class="btn input-label" for="difficulty-easy">Easy</label>
+
+            <input type="radio" name="Difficulty" value="1" class="toggle" id="difficulty-medium" @(newRoutine ? "" : "disabled") @(newRoutine || Model.Difficulty == 1 ? "checked" : "") />
+            <label class="btn input-label" for="difficulty-medium">Medium</label>
+
+            <input type="radio" name="Difficulty" value="2" class="toggle" id="difficulty-hard" @(newRoutine ? "" : "disabled") @(!newRoutine && Model.Difficulty == 2 ? "checked" : "") />
+            <label class="btn input-label" for="difficulty-hard">Hard</label>
+
+        </div>
+        @*<div class="form-group">
+            <label class="control-label">Total Duration (mins)</label>
+            <input type="number" @(newRoutine ? "" : "disabled") step="1" min="0" class="form-control" name="Duration" value="@Model.Duration" required />
+        </div>*@
+    </div>
+    <div id="user-attachments" class="col-lg-4 col-md-6 col-xs-12 pull-right user-list">
+        <h3 class="title">Attached Routines</h3>
+        <ul>
+            @foreach (RoutineAssign attachment in Model.RoutineAssigns)
+            {
+                <li attachment-id="@attachment.Id">
+                    <span class="pull-left user-detail" user-id="@attachment.UserId">@attachment.User.FirstName @attachment.User.LastName</span>
+                    <span class="pull-right">
+                        <a href="/User/Details/@attachment.UserId"><button type="button" class="table-button view-button">View User</button></a>
+                        <button type="button" class="table-button delete-button">Unassign</button>
+                    </span>
+                    <div class="clearfix"></div>
+                </li>
+            }
+            <li class="empty">
+                <span class="pull-left">No Users Attached to Routine</span>
+                <div class="clearfix"></div>
+            </li>
+        </ul>
+        <h3 class="title">Assign User to Routine</h3>
+        <div class="assign-selection">
+            <h4 id="user-assign-message" style="display: none;"></h4>
+            <select class="bs-select form-control pull-left">
+                @{
+                    foreach (User user in ViewBag.AssignedUsers)
+                    {
+                        if (!Model.RoutineAssigns.Select(t => t.UserId).Contains(user.Id))
+                        {
+                            <option value="@user.Id">@user.FirstName @user.LastName</option>}
+                    }
+                }
+            </select>
+            <button type="button" id="assign-user" class="btn add-button pull-right">Assign <i class="fa fa-plus"></i></button>
+        </div>
+    </div>
+    <div id="activity-properties" class="col-lg-8 col-md-12 col-xs-12 pull-left">
+        <div id="routine-item-list">
+            @{
+                int i = 0;
+                foreach (RoutineItem item in Model.RoutineItems.OrderBy(t => t.Order))
+                {
+                    <div class="routine-item">
+                        <input type="hidden" name="RoutineItems[{index}][Id]" value="@item.Id" />
+                        <i class="fa fa-arrows-v move-grabber"></i>
+                        <i class="fa fa-trash delete-icon"></i>
+                        <i class="fa fa-copy duplicate-icon"></i>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select name="RoutineItems[{index}][ActivityType]" disabled>
+                                <option value="0" @(item.ActivityType == 0 ? "selected" : "")>Run</option>
+                                <option value="1" @(item.ActivityType == 1 ? "selected" : "")>Cycling</option>
+                                <option value="2" @(item.ActivityType == 2 ? "selected" : "")>Walk</option>
+                                <option value="3" @(item.ActivityType == 3 ? "selected" : "")>Cross Fit</option>
+                                <option value="4" @(item.ActivityType == 4 ? "selected" : "")>Gym</option>
+                                <option value="5" @(item.ActivityType == 5 ? "selected" : "")>Running Heart Fitness Test</option>
+                                <option value="6" @(item.ActivityType == 6 ? "selected" : "")>Heart and Mind (HRV)</option>
+                                <option value="7" @(item.ActivityType == 7 ? "selected" : "")>Break</option>
+                            </select>
+                        </div>
+                        <div class="group-holder">
+                            <div class="form-group">
+                                <label>Instruction</label>
+                                <input type="text" class="form-control" name="RoutineItems[{index}][Instruction]" value="@item.Instruction" required disabled placeholder="e.g. High intensity running" />
+                            </div>
+                            <div class="form-group">
+                                <label>Setting</label>
+                                <input type="text" class="form-control" name="RoutineItems[{index}][Setting]" value="@item.Setting" required disabled placeholder="e.g. Run for 10 minutes" />
+                            </div>
+                        </div>
+                        <div class="group-holder">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group input-daterange">
+                                    <input name="RoutineItems[{index}][StartDate]" value="@item.StartDate.ToString("dd MMM yyyy")" required type="text" class="form-control datepicker_recurring_start startdate future-date">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group input-daterange">
+                                    <input name="RoutineItems[{index}][EndDate]" value="@item.EndDate.ToString("dd MMM yyyy")" required type="text" class="form-control datepicker_recurring_start enddate future-date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    i++;
+                }
+            }
+        </div>
+        <button type="button" id="add-routine-activity" class="btn add-button" style="display:none;">Add Activity <i class="fa fa-plus"></i></button>
+        <div id="routine-form-actions" class="form-actions">
+            <div class="save-actions pull-left" style="display:none;">
+                <button type="submit" id="save-routine" class="btn add-button">Save Changes</button>
+                <button type="button" id="cancel-changes" class="btn default">Cancel</button>
+                <img src="/Content/Theme/Images/loading-spinner-grey.gif" alt="" class="loading" style="display: none;">
+            </div>
+
+            <button type="button" class="pull-right btn add-button edit-button" @(newRoutine ? "style=display:none;" : "")>Edit Routine</button>
+        </div>
+    </div>
+</form>
+
+
+
+<div id="routine-item-template" class="routine-item" style="display: none;">
+    <input type="hidden" name="RoutineItems[{index}][Id]" value="" />
+    <i class="fa fa-arrows-v move-grabber"></i>
+    <i class="fa fa-trash delete-icon"></i>
+    <i class="fa fa-copy duplicate-icon"></i>
+    <div class="form-group">
+        <label>Type</label>
+        <select name="RoutineItems[{index}][ActivityType]">
+            <option value="0">Run</option>
+            <option value="1">Cycling</option>
+            <option value="2">Walk</option>
+            <option value="3">Cross Fit</option>
+            <option value="4">Gym</option>
+            <option value="5">Running Heart Fitness Test</option>
+            <option value="6">Heart and Mind (HRV)</option>
+            <option value="7">Break</option>
+        </select>
+    </div>
+    <div class="group-holder">
+        <div class="form-group">
+            <label>Instruction</label>
+            <input type="text" class="form-control" name="RoutineItems[{index}][Instruction]" value="" required placeholder="e.g. High intensity running" />
+        </div>
+        <div class="form-group">
+            <label>Setting</label>
+            <input type="text" class="form-control" name="RoutineItems[{index}][Setting]" value="" required placeholder="e.g. Run for 10 minutes" />
+        </div>
+    </div>
+    <div class="group-holder">
+        <div class="form-group">
+            <label>Start Date</label>
+            <div class="input-group input-daterange">
+                <input name="RoutineItems[{index}][StartDate]" type="text" value="@DateTime.UtcNow.ToString("dd MMM yyyy")" required class="form-control datepicker_recurring_start startdate future-date">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>End Date</label>
+            <div class="input-group input-daterange">
+                <input name="RoutineItems[{index}][EndDate]" type="text" required class="form-control datepicker_recurring_start enddate future-date">
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<li id="attachment-item-template" style="display: none;">
+    <span class="pull-left user-detail" user-id="{id}">{name}</span>
+    <span class="pull-right">
+        <a href="/User/Details/{id}"><button type="button" class="table-button view-button">View User</button></a>
+        <button type="button" class="table-button delete-button">Unassign</button>
+    </span>
+    <div class="clearfix"></div>
+</li>
+
+<div class="modal-holder">
+    <div class="modal fade" id="largeAddEditModal" role="form" aria-hidden="true">
+        <div class="modal-dialog edit-panel-modal">
+            <div class="modal-content modal-main">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn delete-button modal-okay"></button>
+                </div>
+            </div>
+            <div class="modal-content modal-loader">
+                <div class="modal-header">
+                    <img src="~/Content/Theme/Images/loading-spinner-grey.gif" alt="" class="loading">
+                    <span> &nbsp;&nbsp;Loading... </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade bs-modal-sm" id="smallAlertModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn login-btn modal-okay" data-dismiss="modal">Okay</button>
+                </div>
+            </div>
+            <div class="modal-content modal-loader hidden">
+                <div class="modal-header">
+                    <img src="~/Content/Theme/Images/loading-spinner-grey.gif" alt="" class="loading">
+                    <span> &nbsp;&nbsp;Loading... </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

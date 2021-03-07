@@ -1,0 +1,140 @@
+﻿.user-activity {
+  color: #707070; }
+  .user-activity #activity-map {
+    height: 400px; }
+  .user-activity #activity-bpm-zones {
+    height: 300px; }
+    .user-activity #activity-bpm-zones a {
+      display: none !important; }
+  .user-activity .detail-list {
+    list-style: none;
+    padding: 10px 0; }
+    .user-activity .detail-list li {
+      display: inline-block;
+      padding: 5px 0; }
+      .user-activity .detail-list li:not(:last-child) {
+        margin-right: 10px; }
+      .user-activity .detail-list li h2 {
+        margin: 0; }
+    .user-activity .detail-list .detail-col {
+      margin-right: 10px;
+      display: inline-block; }
+      .user-activity .detail-list .detail-col span {
+        margin-left: 10px;
+        float: right; }
+    .user-activity .detail-list .detail-row {
+      display: inline-block; }
+      .user-activity .detail-list .detail-row:not(:last-child) {
+        margin-right: 10px; }
+      .user-activity .detail-list .detail-row h1, .user-activity .detail-list .detail-row h2, .user-activity .detail-list .detail-row h3, .user-activity .detail-list .detail-row h4, .user-activity .detail-list .detail-row .detail {
+        display: inline-block; }
+        .user-activity .detail-list .detail-row h1:not(:last-child), .user-activity .detail-list .detail-row h2:not(:last-child), .user-activity .detail-list .detail-row h3:not(:last-child), .user-activity .detail-list .detail-row h4:not(:last-child), .user-activity .detail-list .detail-row .detail:not(:last-child) {
+          margin-right: 10px; }
+    .user-activity .detail-list i {
+      width: 20px;
+      text-align: center;
+      color: #b5c1c9; }
+    .user-activity .detail-list h1 span, .user-activity .detail-list h2 span, .user-activity .detail-list h3 span, .user-activity .detail-list h4 span, .user-activity .detail-list .detail span {
+      color: #d83238;
+      font-weight: bold; }
+  .user-activity .activity-stats {
+    padding-left: 20px; }
+    .user-activity .activity-stats .stat-image {
+      padding: 2px;
+      height: 20px;
+      opacity: 0.5; }
+    @media (max-width: 1279px) {
+      .user-activity .activity-stats {
+        padding-left: 0; } }
+  .user-activity .fitness-score-table {
+    width: calc(100% - 10px);
+    height: 100%;
+    margin: 5px; }
+    .user-activity .fitness-score-table .heading th, .user-activity .fitness-score-table .heading td {
+      padding: 5px;
+      text-align: center !important; }
+    .user-activity .fitness-score-table .heading th {
+      padding-bottom: 0; }
+    .user-activity .fitness-score-table .heading td {
+      padding-top: 0; }
+    .user-activity .fitness-score-table .stat:nth-child(odd) {
+      background-color: #f4f4f4; }
+    .user-activity .fitness-score-table .stat td {
+      padding: 5px;
+      text-align: center; }
+      .user-activity .fitness-score-table .stat td:first-child {
+        font-weight: bold;
+        text-align: left; }
+      .user-activity .fitness-score-table .stat td:last-child {
+        text-align: right; }
+  .user-activity .main-stats .detail-list {
+    padding-top: 0; }
+  .user-activity .stat-line:not(:last-child) {
+    margin-bottom: 25px; }
+  .user-activity .stat-line::after {
+    content: '';
+    display: block;
+    clear: both; }
+  .user-activity .stat-line .left-container {
+    width: 400px;
+    float: left; }
+    @media (max-width: 1279px) {
+      .user-activity .stat-line .left-container {
+        width: 100%; } }
+    .user-activity .stat-line .left-container h2 {
+      margin-top: 55px; }
+      @media (max-width: 1279px) {
+        .user-activity .stat-line .left-container h2 {
+          margin-top: 0; } }
+  .user-activity .stat-line .split-button-container {
+    position: relative; }
+    .user-activity .stat-line .split-button-container .split-buttons {
+      margin-bottom: 5px; }
+      @media (min-width: 1280px) {
+        .user-activity .stat-line .split-button-container .split-buttons {
+          position: absolute;
+          top: 5px; } }
+      .user-activity .stat-line .split-button-container .split-buttons > div, .user-activity .stat-line .split-button-container .split-buttons > button {
+        display: inline-block; }
+      .user-activity .stat-line .split-button-container .split-buttons select {
+        height: 34px;
+        padding: 0 5px;
+        vertical-align: middle; }
+        .user-activity .stat-line .split-button-container .split-buttons select:disabled {
+          opacity: 0.6; }
+  .user-activity .stat-line .right-container {
+    width: calc(100% - 400px);
+    float: right; }
+    @media (max-width: 1279px) {
+      .user-activity .stat-line .right-container {
+        width: 100%; } }
+  .user-activity .stat-line .chart {
+    overflow: visible !important;
+    margin-top: 15px; }
+    .user-activity .stat-line .chart .amcharts-main-div {
+      overflow: visible; }
+      .user-activity .stat-line .chart .amcharts-main-div .amcharts-chart-div {
+        overflow: visible !important; }
+        .user-activity .stat-line .chart .amcharts-main-div .amcharts-chart-div svg {
+          overflow: visible; }
+    .user-activity .stat-line .chart a {
+      display: none !important; }
+  .user-activity .stat-line div.chart-stats {
+    height: 100%; }
+    .user-activity .stat-line div.chart-stats::after {
+      content: '';
+      display: inline-block;
+      width: 0px;
+      height: 100%; }
+  .user-activity .stat-line h4 span {
+    color: #d83238;
+    font-weight: bold; }
+  .user-activity .hm-table {
+    width: 100%;
+    margin-bottom: 15px; }
+    .user-activity .hm-table tr:nth-child(even) {
+      background-color: #f4f4f4; }
+    .user-activity .hm-table tr td, .user-activity .hm-table tr th {
+      text-align: center;
+      padding: 5px; }
+

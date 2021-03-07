@@ -1,0 +1,163 @@
+﻿@using Shared.Model
+<div class="tabbable-custom">
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a href="#tab_5_1" data-toggle="tab"> Assigned Users </a>
+        </li>
+        <li>
+            <a href="#tab_5_2" data-toggle="tab"> Pending Requests </a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="tab_5_1">
+            <div class="row">
+                <button class="btn add-button" onClick="InvitePopup()"><i class="fa fa-plus"></i> Invite User</button>
+                <button class="btn login-btn bulk-report" onclick="BulkReport();">
+                    Email Activities Report
+                </button>
+            </div>
+
+            <div class="row accordion" id="UserTableModel_filter_accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#UserTableModel_filter_accordion" href="#UserTableModel_collapse_filters"></a>
+                        </h4>
+                    </div>
+                    <div id="UserTableModel_collapse_filters" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <form id="filter-form" method="post">
+                                <div class="form-group col-xs-12 col-sm-5 col-md-3">
+                                    <label class="control-label">Filter by Activity Date Range:</label><br />
+                                    <div class="input-group input-daterange">
+                                        <input name="StartDate" type="text" data-date-clear-btn="true" class="form-control">
+                                        <span class="input-group-addon">to</span>
+                                        <input name="EndDate" type="text" data-date-clear-btn="true" class="form-control">
+                                    </div>
+                                    <div class="range-button-holder"></div>
+                                </div>
+
+                                <div class="form-group col-xs-12 col-sm-5 col-md-3">
+                                    <label class="control-label">Filter by User Created Date Range:</label><br />
+                                    <div class="input-group input-daterange">
+                                        <input name="StartDateUser" type="text" data-date-clear-btn="true" class="form-control">
+                                        <span class="input-group-addon">to</span>
+                                        <input name="EndDateUser" type="text" data-date-clear-btn="true" class="form-control">
+                                    </div>
+                                    <div class="range-button-holder"></div>
+                                </div>
+
+                                @Html.Raw(ViewBag.FilterHTML)
+                                <div class="form-group col-xs-12 col-sm-12 col-md-12">
+                                    <button type="button" class="btn bg-color pull-right" onclick="ResetFilters()">Reset Filters</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <table class="table table-striped table-bordered table-hover dt-responsive dt-helper-table" column-array="assignedUsersCols" draw-context="ContextData" ajax-url="/User/CoachRowJSON">
+                    <thead>
+                        <tr>
+                            @*<th style="text-align:center;padding:0;vertical-align:middle;">
+                                    <input type="checkbox" class="toggle table-checkbox" name="select_all" value="1" id="users-select-all">
+                                </th>*@
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Routines Assigned</th>
+                            <th>Gender</th>
+                            <th>Date of Birth</th>
+                            <th>Last Activity Done</th>
+                            <th>Date Created</th>
+                            <th class="all">Actions</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr></tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane" id="tab_5_2">
+            <div class="row">
+                <button class="btn add-button" onClick="InvitePopup()"><i class="fa fa-plus"></i> Invite User</button>
+            </div>
+            <div class="row">
+                <table class="table table-striped table-bordered table-hover dt-responsive dt-helper-table" draw-context="ContextData" column-array="PendingRequestCols" ajax-url="/User/PendingRowJSON">
+                    <thead>
+                        <tr>
+                            @*<th style="text-align:center;padding:0;vertical-align:middle;">
+                                    <input type="checkbox" class="toggle table-checkbox" name="select_all" value="1" id="users-select-all">
+                                </th>*@
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th class="all">Actions</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr></tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="user-report-dialog" data-backdrop="static">
+    <div class="modal-dialog modal-small">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Send Report to Myself</h4>
+            </div>
+            <div class="modal-header">
+                <p class="modal-title">This will email a report of the activities the selected users have done in the last 7 days.</p>
+            </div>
+            <div class="modal-body">
+                <div style="margin-top:20px;">
+                    <label class="control-label">Users</label><br />
+                    <select multiple="multiple" left-header="" right-header="Selected Users" class="multi-select-search form-control" id="UserReportIds">
+                        @foreach (User user in Model.Users)
+                        {
+                            <option value="@user.Id">@user.FirstName @user.LastName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="user-report-back" type="button" class="btn btn-back sbold uppercase">Back</button>
+                <button id="user-report-send" type="button" class="btn login-btn sbold uppercase" data-dismiss="modal">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="coach-invite-dialog" data-backdrop="static">
+    <div class="modal-dialog modal-small">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Invite User</h4>
+            </div>
+            <div class="modal-body">
+                <h5>
+                    Email
+                    <span id="coach-invite-firstname-required" class="red-text" style="display:none;">*valid email required </span>
+                </h5>
+                <input id="coach-invite-email" class="form-control" type="text" />
+                <h5>First Name</h5>
+                <input id="coach-invite-firstname" class="form-control" type="text" />
+                <h5>Last Name</h5>
+                <input id="coach-invite-lastname" class="form-control" type="text" />
+            </div>
+
+            <div class="modal-footer">
+                <button id="coach-invite-back" type="button" class="btn btn-back pull-left mid-color">Back</button>
+                <button id="coach-invite-send" type="button" class="btn pull-right mid-color login-btn">Invite</button>
+            </div>
+        </div>
+    </div>
+</div>

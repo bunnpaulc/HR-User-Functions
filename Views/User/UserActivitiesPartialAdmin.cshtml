@@ -1,0 +1,106 @@
+﻿<div class="datatable-holder">
+    <div class="row form-inline">
+        <button class="btn delete-button bulk-edit" onclick="BulkDelete();" disabled>
+            Delete Selected Activities
+        </button>
+        <div class="pull-right" id="UserTableModel_search">
+            <select class="bs-select form-control ignore-filter" name="entry-count">
+                <option value="10">Show 10 entries per page</option>
+                <option value="30" selected>Show 30 entries per page</option>
+                <option value="50">Show 50 entries per page</option>
+                <option value="100">Show 100 entries per page</option>
+            </select>
+            <span>&nbsp;</span>
+            <label for="UserTableModel_search">Search: </label>
+            <input type="text" class="form-control dt-helper-search" name="UserTableModel_search" placeholder="Activity Name..."/>
+        </div>
+    </div>
+    <div class="row accordion" id="UserTableModel_filter_accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#UserTableModel_filter_accordion" href="#UserTableModel_collapse_filters"></a>
+                </h4>
+            </div>
+            <div id="UserTableModel_collapse_filters" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <form id="filter-form" method="post">
+                        <div class="form-group col-xs-12 col-sm-5 col-md-3">
+                            <label class="control-label">Filter by Date Range:</label><br />
+                            <div class="input-group input-daterange">
+                                <input name="StartDate" type="text" class="form-control">
+                                <span class="input-group-addon">to</span>
+                                <input name="EndDate" type="text" class="form-control">
+                            </div>
+                            <div class="range-button-holder"></div>
+                        </div>
+                        @Html.Raw(ViewBag.FilterHTML)
+                        <div class="form-group col-xs-12 col-sm-12 col-md-12">
+                            <button type="button" class="btn bg-color pull-right" onclick="ResetFilters()">Reset Filters</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-striped table-bordered table-hover dt-responsive dt-helper-table" draw-context="ContextData" ajax-url="/User/ActivityRowJSON">
+            <thead>
+                <tr>
+                    <th style="text-align:center;padding:0;vertical-align:middle;">
+                        <input type="checkbox" class="toggle table-checkbox" name="select_all" value="1" id="users-select-all">
+                    </th>
+                    <th>Date of Activity</th>
+                    <th>Activity Name</th>
+                    <th>Activity Type</th>
+                    <th>Duration</th>
+                    <th class="all">Actions</th>
+                </tr>
+            </thead>
+            <tfoot>
+                <tr></tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    var dtOrder = [[1, 'desc']];
+    var SaferMeDTCols = [
+        {
+            'data': 'checks',
+            'searchable': false,
+            'orderable': false,
+            'className': 'dt-body-center',
+            'width': 30
+        },
+        {
+            "data": "StartTime",
+            "name": "Date of Activity",
+            "responsivePriority":0,
+            "searchable": false,
+        },
+        {
+            "data": "Title",
+            "name": "Activity Name",
+            "responsivePriority": 0,
+        },
+        {
+            "data": "Type",
+            "name": "Activity Type",
+            "responsivePriority": 0,
+            "searchable": false,
+        },
+        {
+            "data": "Seconds",
+            "name": "Duration",
+            "searchable": false,
+        },
+        {
+            "data": "Actions",
+            "orderable": false,
+            "searchable": false,
+        },
+    ];
+</script>

@@ -1,0 +1,132 @@
+﻿@model Shared.Model.User
+@{
+    var metric = ViewBag.DisplayUnit == BioConnected.Models.DisplayUnit.METRIC;
+    var userLastActivity = Model.Activities.Any() ? Model.Activities.Max(t => t.StartTime) : null;
+}
+<script type="text/javascript">
+    var userLastActivity = @(userLastActivity.HasValue ? "new Date(" + userLastActivity.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds + ")" : "null");
+</script>
+<div class="user-overview">
+    <div class="col-lg-3 col-md-6 col-xs-12 pull-left user-details">
+        <div class="user-image">
+            <img src="@(string.IsNullOrWhiteSpace(Model.Pic) ? "/Content/assets/NoUserImage.png" : "data:image/png;base64," + Model.Pic)" />
+            <i class="fa fa-upload"></i>
+        </div>
+
+        <div class="image-actions">
+            @if (string.IsNullOrWhiteSpace(Model.Pic))
+            {
+                <p class="help-block pull-left">No User Image Set</p>
+            }
+
+            <input type="file" id="upload-user-image" accept=".jpg,.png,.gif" style="display: none;" />
+            <label class="btn add-button pull-right" for="upload-user-image">Upload Image</label>
+            <div class="clearfix"></div>
+        </div>
+
+        <ul>
+            <li><i class="fa fa-calendar"></i> Last Activity: <span id="last-activity-date">@(userLastActivity.HasValue ? "" : "No Activity Completed")</span></li>
+            <li><i class="fa fa-tachometer"></i> Current Weight: <span>@(Math.Round(Model.Weight))kgs (@(Math.Round(Model.Weight * 2.20462))lbs)</span></li>
+            <li><i class="fa fa-heartbeat"></i> Resting HR: <span>@Model.RestHR bpm</span></li>
+            <li><i class="fa fa-heartbeat"></i> Maximum HR: <span>@Model.MaxHR bpm</span></li>
+        </ul>
+    </div>
+    <div class="col-lg-3 col-md-6 col-xs-12 pull-right coach-list">
+        <h3 class="title">Attached Coaches</h3>
+        <ul>
+            @foreach (Shared.Model.CoachAssign attachment in Model.CoachAssigns)
+            {
+                <li attachment-id="@attachment.Id">
+                    <span class="pull-left">@attachment.Coach.FirstName @attachment.Coach.LastName</span>
+                    <span class="pull-right">
+                        <a href="/Coach/Details/@attachment.Coach.Id"><button class="table-button view-button">View Coach</button></a>
+                        <button class="table-button delete-button" onclick="removeAttachment('@attachment.Id');">Unattach</button>
+                    </span>
+                    <div class="clearfix"></div>
+                </li>
+            }
+            <li class="empty">
+                <span class="pull-left">No Coaches Attached to User</span>
+                <div class="clearfix"></div>
+            </li>
+        </ul>
+        <h3 class="title">Attached Routines</h3>
+        <ul>
+            @foreach (Shared.Model.RoutineAssign attachment in Model.RoutineAssigns.Where(t => t.Routine.CoachId == ViewBag.User.Id))
+            {
+                <li attachment-id="@attachment.Id">
+                    <span class="pull-left routine-detail" routine-id="@attachment.RoutineId">@attachment.Routine.Name</span>
+                    <span class="pull-right">
+                        <a href="/Routine/Details/@attachment.RoutineId"><button class="table-button view-button">View Routine</button></a>
+                        <button class="table-button delete-button" onclick="AttachFunctions.UnassignUserConfirm(this);">Unassign</button>
+                    </span>
+                    <div class="clearfix"></div>
+                </li>
+            }
+            <li class="empty">
+                <span class="pull-left">No Routines Attached to User</span>
+                <div class="clearfix"></div>
+            </li>
+        </ul>
+        <h3 class="title">Assign Routine to User</h3>
+        <div class="assign-selection">
+            <h4 id="user-assign-message" style="display: none;">All routines assigned to user</h4>
+            <select class="bs-select form-control pull-left">
+                @{
+                    foreach (Shared.Model.Routine routine in ViewBag.User.Routines)
+                    {
+                        if (!Model.RoutineAssigns.Select(t => t.RoutineId).Contains(routine.Id))
+                        {
+                            <option value="@routine.Id">@routine.Name</option>}
+                    }
+                }
+            </select>
+            <button id="assign-user" class="btn add-button pull-right" onclick="AttachFunctions.AssignUser();">Assign <i class="fa fa-plus"></i></button>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-12 col-xs-12">
+        <form method="post" class="form edit-helper-form user-details-form" action="" id="cms-form">
+            <div class="form-group">
+                <label class="control-label">First Name</label>
+                <input type="text" disabled class="form-control" name="FirstName" value="@Model.FirstName" required />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Last Name</label>
+                <input type="text" disabled class="form-control" name="LastName" value="@Model.LastName" required />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Email</label>
+                <input type="text" disabled class="form-control" name="Email" value="@Model.Email" required />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Date of Birth (DD/MM/YYYY)</label>
+                <div class="input-group date datepicker" style="padding: 0;" data-date-clear-btn="false">
+                    <input type="text" class="form-control" name="DOB" value="@Model.DOB.ToString("dd/MM/yyyy")" required  disabled/>
+                    <div class="input-group-addon disabledbutton" style="display: table-cell;">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Gender</label>
+                <select class="bs-select form-control" disabled name="Gender">
+                    <option value="Male" @(Model.Gender == "Male" ? "selected" : "")>Male</option>
+                    <option value="Female" @(Model.Gender == "Female" ? "selected" : "")>Female</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Height @(metric ? "(cm)" : "(in)")</label>
+                <input type="number" disabled step="1" min="0" max="300" class="form-control" name="Height" value="@(metric ? Model.Height : Math.Round(Model.Height * 0.393701, 1))" required />
+            </div>
+            <div class="form-actions">
+                <div class="save-actions pull-left" style="display:none;">
+                    <button type="button" class="btn add-button save">Save Changes</button>
+                    <button type="button" class="btn default cancel">Cancel</button>
+                    <img src="/Content/Theme/Images/loading-spinner-grey.gif" alt="" class="loading" style="display: none;">
+                </div>
+
+                <button type="button" class="pull-right btn add-button edit-button">Edit User</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,247 @@
+﻿@using Shared.Model;
+@model BioConnected.Controllers.RoutineController.RoutineDetails
+@{
+    Layout = "../Shared/_ListLayout.cshtml";
+    ViewBag.Title = Model.Routine.Name;
+    ViewBag.Subtitle = "Completed Activities";
+    ViewBag.Breadcrumbs = new string[] { "<a href=\"/Routine/Index\">Routines</a>" };
+}
+
+@section pagestyles {
+    <style type="text/css">
+        .dt-helper-table button:disabled {
+            opacity: 0.5;
+        }
+    </style>
+}
+
+@section pagescripts{
+    <script src="~/Scripts/RoutineActivities.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var ContextData = {
+            RoutineId: '@Model.Routine.Id',
+        }
+    </script>
+}
+
+<div class="datatable-holder">
+    <h2 class="title"><span class="bold">Routine: @Model.Routine.Name</span></h2>
+    <h2 class="title"><span class="bold">User Overview</span></h2>
+    <div class="row accordion" id="UserCompleted-accordian">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a class="accordion-toggle accordion-toggle-styled collapsed no-filter" data-toggle="collapse" data-parent="#UserCompleted-accordian" href="#UserCompleted-accordian-body">
+                        <span class="bold">Users who have completed the routine</span> - @Model.UsersCompletedCount @(Model.UsersCompletedCount == 1 ? "User" : "Users")
+                    </a>
+                </h4>
+            </div>
+            <div id="UserCompleted-accordian-body" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="datatable-holder">
+                        <div class="row">
+                            <table class="table table-striped table-bordered table-hover dt-responsive dt-helper-table" draw-filter="UserCompleted"  column-array="OverviewCompletedCols" draw-context="ContextData" ajax-url="/Routine/CompletedUserRowJSON">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Number of Activities Completed</th>
+                                        <th class="all">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr></tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row accordion" id="UserNotCompleted-accordian">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a class="accordion-toggle accordion-toggle-styled collapsed no-filter" data-toggle="collapse" data-parent="#UserNotCompleted-accordian" href="#UserNotCompleted-accordian-body">
+                        <span class="bold">Users who have not completed the routine</span> - @Model.UsersNotCompletedCount @(Model.UsersNotCompletedCount == 1 ? "User" : "Users")
+                    </a>
+                </h4>
+            </div>
+            <div id="UserNotCompleted-accordian-body" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="datatable-holder">
+                        <div class="row">
+                            <table class="table table-striped table-bordered table-hover dt-responsive dt-helper-table" draw-filter="UserNotCompleted"  column-array="OverviewNotCompletedCols" draw-context="ContextData" ajax-url="/Routine/NotCompletedUserRowJSON">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Routine Progress</th>
+                                        <th>Number of Activities Completed</th>
+                                        <th class="all">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr></tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="title"><span class="bold">Activities</span></h2>
+    @foreach (RoutineItem item in Model.Routine.RoutineItems.Where(w => w.ActivityType != 7))
+    {
+    <div class="row accordion" id="@item.Id-accordian">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a class="accordion-toggle accordion-toggle-styled collapsed no-filter" data-toggle="collapse" data-parent="#@item.Id-accordian" href="#@item.Id-accordian-body">
+                        @if (GetActivityType(item.ActivityType) == "Any")
+                        {
+                            <text>
+                            <span class="bold">Activity Type: </span>@GetActivityType(item.ActivityType) | @item.Instruction, @item.Setting - @Model.ReminderCount @(Model.ReminderCount == 1 ? "Activity" : "Activities") Completed
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                            <span class="bold">Activity Type: </span>@GetActivityType(item.ActivityType) | @item.Instruction, @item.Setting - @item.Activities.Count() @(item.Activities.Count() == 1 ? "Activity" : "Activities") Completed
+                            </text>
+                        }
+                    </a>
+                </h4>
+            </div>
+            <div id="@item.Id-accordian-body" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="datatable-holder">
+                        <div class="row">
+                            <table class="table table-striped table-bordered table-hover dt-responsive dt-helper-table" draw-filter="@item.Id" draw-context="ContextData" ajax-url="/Routine/ActivityRowJSON">
+                                <thead>
+                                    <tr>
+                                        <th>Date of Activity</th>
+                                        <th>Activity Name</th>
+                                        <th>User</th>
+                                        <th>Duration</th>
+                                        <th class="all">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr></tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>
+
+<script type="text/javascript">
+    var dtOrder = [[0, 'desc']];
+
+    var SaferMeDTCols = [
+        {
+            "data": "ActivityDate",
+            "name": "Date of Activity",
+            "responsivePriority": 0,
+            "searchable": false,
+        },
+        {
+            "data": "Title",
+            "name": "Activity Name",
+            "responsivePriority": 1,
+        },
+        {
+            "data": "UserName",
+            "name": "User",
+            "responsivePriority": 0,
+        },
+        {
+            "data": "Seconds",
+            "name": "Duration",
+            "searchable": false,
+        },
+        {
+            "data": "Actions",
+            "orderable": false,
+            "searchable": false,
+        },
+    ];
+
+    var OverviewCompletedCols = [
+        {
+            "data": "Username",
+            "name": "Users Name",
+            "responsivePriority": 0,
+            "searchable": false,
+        },
+        {
+            "data": "ActivitiesCompleted",
+            "name": "Number of Activities Completed",
+            "responsivePriority": 0,
+        },
+        {
+            "data": "Actions",
+            "orderable": false,
+            "searchable": false,
+        },
+    ];
+
+    var OverviewNotCompletedCols = [
+        {
+            "data": "Username",
+            "name": "Users Name",
+            "responsivePriority": 0,
+            "searchable": false,
+        },
+        {
+            "data": "RoutineProgress",
+            "name": "Routine Progress",
+            "responsivePriority": 1,
+        },
+        {
+            "data": "ActivitiesCompleted",
+            "name": "Activities Completed",
+            "responsivePriority": 0,
+        },
+        {
+            "data": "Actions",
+            "orderable": false,
+            "searchable": false,
+        },
+    ];
+</script>
+
+@functions {
+    string GetActivityType(int ActivityType)
+    {
+        switch (ActivityType)
+        {
+            case 0:
+                return "Run";
+            case 1:
+                return "Cycling";
+            case 2:
+                return "Walk";
+            case 3:
+                return "Cross Fit";
+            case 4:
+                return "Gym";
+            case 5:
+                return "Running Heart Fitness Test";
+            case 6:
+                return "Heart and Mind (HRV)";
+            case 7:
+                return "Rest";
+            case 8:
+                return "Any";
+            default:
+                return "Run";
+        }
+    }
+}

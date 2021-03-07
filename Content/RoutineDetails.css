@@ -1,0 +1,117 @@
+﻿.routine-details-form {
+  cursor: default; }
+  .routine-details-form select {
+    cursor: pointer; }
+  .routine-details-form .assign-selection select {
+    width: calc(100% - 110px);
+    margin-right: 10px;
+    height: 38px; }
+  .routine-details-form .assign-selection button {
+    width: 100px; }
+  .routine-details-form .radio-option input[type="radio"] {
+    display: none; }
+  .routine-details-form .radio-option label.input-label {
+    color: #000;
+    background-color: #fff;
+    border: solid #000 1px;
+    margin-left: 5px; }
+  .routine-details-form .radio-option input:checked + label {
+    color: #fff;
+    background-color: #000; }
+  .routine-details-form .radio-option input:disabled + label {
+    opacity: 0.5;
+    cursor: not-allowed; }
+  .routine-details-form input, .routine-details-form textarea, .routine-details-form select {
+    max-width: 600px; }
+  .routine-details-form .form-actions {
+    background-color: transparent;
+    border: none;
+    padding: 20px 0; }
+  .routine-details-form .user-list h3 {
+    margin-top: 0; }
+  .routine-details-form .user-list ul {
+    list-style: none;
+    padding: 0;
+    border-top: solid 1px #ddd; }
+    .routine-details-form .user-list ul li {
+      padding: 10px 0;
+      border-bottom: solid 1px #ddd;
+      color: #707070; }
+      .routine-details-form .user-list ul li.empty {
+        display: none; }
+        .routine-details-form .user-list ul li.empty:only-child {
+          display: block; }
+      .routine-details-form .user-list ul li span.pull-left {
+        line-height: 24px; }
+  .routine-details-form .user-list button:disabled {
+    opacity: 0.5;
+    pointer-events: none; }
+  .routine-details-form #activity-properties button {
+    width: 130px; }
+  .routine-details-form #routine-item-list {
+    margin-bottom: 10px; }
+    .routine-details-form #routine-item-list:empty::before {
+      content: 'No activities added to routine.';
+      font-size: 26px;
+      font-weight: 200;
+      margin: 20px 0;
+      display: block; }
+
+.routine-item {
+  background-color: #F5F5F5;
+  border: solid 1px #DCDCDC;
+  position: relative;
+  padding: 20px 50px;
+  padding-bottom: 0;
+  margin-top: 10px; }
+  .routine-item.gu-transit .move-grabber, .routine-item.gu-mirror .move-grabber {
+    cursor: -webkit-grabbing;
+    cursor: -moz-grabbing;
+    cursor: grabbing; }
+  .routine-item .move-grabber, .routine-item .delete-icon, .routine-item .duplicate-icon {
+    position: absolute;
+    transform: translateY(-50%);
+    padding: 10px;
+    transition: color ease 0.4s; }
+  .routine-item .move-grabber {
+    top: 50%;
+    left: 10px;
+    font-size: 18px;
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+    cursor: grab; }
+  .routine-item .delete-icon {
+    top: 25%;
+    right: 10px;
+    color: #D83238;
+    font-size: 24px;
+    cursor: pointer; }
+    .routine-item .delete-icon:hover {
+      color: #b61016; }
+  .routine-item .duplicate-icon {
+    top: 70%;
+    right: 10px;
+    color: #38A949;
+    font-size: 24px;
+    cursor: pointer; }
+    .routine-item .duplicate-icon:hover {
+      color: #168727; }
+  .routine-item .group-holder {
+    display: inline-block; }
+  .routine-item .form-group {
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 20px;
+    min-width: 200px;
+    margin-left: -4px; }
+    .routine-item .form-group label {
+      display: block; }
+    .routine-item .form-group select, .routine-item .form-group input {
+      display: inline-block;
+      width: 300px;
+      height: 38px; }
+    .routine-item .form-group select:disabled {
+      background-color: #EEF1F5;
+      border-color: #C2CAD8;
+      cursor: not-allowed; }
+

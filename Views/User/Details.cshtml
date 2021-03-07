@@ -1,0 +1,148 @@
+﻿@model Shared.Model.User
+
+@{
+    Layout = "../Shared/_ListLayout.cshtml";
+
+    ViewBag.Title = Model.FirstName + " " + Model.LastName;
+    ViewBag.Subtitle = "User Details";
+
+    ViewBag.Breadcrumbs = new string[] { "<a href=\"/User/Index\">Users</a>" };
+    ViewBag.TitleButton = "<button onclick=\"EmailPopup()\" class=\"btn login-btn\"><i class=\"fa fa-envelope\"></i> Email User</button>";
+
+    var showActivities = Request.QueryString["show-activities"] != "false" ? 1 : 0;
+}
+
+@section pagestyles {
+    <link href="~/Content/UserDetails.min.css" rel="stylesheet" type="text/css" />
+}
+
+@section pagescripts{
+    @if (ViewBag.IsAdmin)
+    {
+        <script src="~/Scripts/UserActivityAdmin.js" type="text/javascript"></script>
+    }
+    else
+    {
+        <script src="~/Scripts/UserActivityCoach.js" type="text/javascript"></script>
+    }
+    <script type="text/javascript">
+        @if (ViewBag.StartDate != null)
+        {
+            <text>
+            var startDate = new Date(@ViewBag.StartDate.Year + "," + @ViewBag.StartDate.Month + "," + @ViewBag.StartDate.Day);
+            var startDateDefault = false;
+            </text>
+        }
+
+        @if (ViewBag.EndDate != null)
+        {
+            <text>
+            var endDate = new Date(@ViewBag.EndDate.Year + "," + @ViewBag.EndDate.Month + "," + @ViewBag.EndDate.Day);
+            var endDateDefault = false;
+            </text>
+        }
+
+
+        var ContextData = {
+            UserId: '@Model.Id',
+            StartDate: null,
+            EndDate: null,
+        }
+
+        function ResetFilters() {
+            $("[name=StartDate]").val("").datepicker('update');
+            ContextData.StartDate = "";
+            $("[name=EndDate]").val("").datepicker('update');
+            ContextData.EndDate = "";
+            $("select:not(.ignore-filter)").val("");
+
+            $('.dt-helper-table').DataTable().draw();
+        }
+
+        $('select[name="entry-count"]').on('change', function () {
+            $('.dt-helper-table').DataTable().page.len(+$(this).val());
+            $('.dt-helper-table').DataTable().draw(false);
+        });
+
+        $('a[href="#tab_5_2"]').on('shown.bs.tab', function() {
+            $('.dt-helper-table').dataTable().api().responsive.recalc();
+        });
+    </script>
+    @if (ViewBag.IsAdmin)
+    {
+        <script src="~/Scripts/UserDetailsAdmin.js" type="text/javascript"></script>
+    }
+    else
+    {
+        <script src="~/Scripts/UserDetailsCoach.js" type="text/javascript"></script>
+    }
+}
+
+<div class="tabbable-custom">
+    <ul class="nav nav-tabs">
+        <li class="@(showActivities == 0 ? "active" : "")">
+            <a href="#tab_5_1" data-toggle="tab"> Overview </a>
+        </li>
+
+        @if (!ViewBag.IsAdmin)
+        {
+            <li class="@(showActivities == 1 ? "active" : "")">
+                <a href="#tab_5_2" data-toggle="tab"> All Activities </a>
+            </li>
+            <li class="@(showActivities == 2 ? "active" : "")">
+                <a href="#tab_5_3" data-toggle="tab"> Prescribed Routines </a>
+            </li>
+        }
+        else
+        {
+            <li class="@(showActivities == 1 ? "active" : "")">
+                <a href="#tab_5_2" data-toggle="tab"> Activities </a>
+            </li>
+        }
+    </ul>
+    <div class="tab-content">
+        @if (ViewBag.IsAdmin)
+        {
+            <div class="tab-pane @(showActivities == 0 ? "active" : "")" id="tab_5_1">
+                @Html.Partial("UserDetailsPartialAdmin", Model)
+            </div>
+            <div class="tab-pane @(showActivities == 1 ? "active" : "")" id="tab_5_2">
+                @Html.Partial("UserActivitiesPartialAdmin", Model)
+            </div>
+        }
+        else
+        {
+            <div class="tab-pane @(showActivities == 0 ? "active" : "")" id="tab_5_1">
+                @Html.Partial("UserDetailsPartialCoach", Model)
+            </div>
+            <div class="tab-pane @(showActivities == 1 ? "active" : "")" id="tab_5_2">
+                @Html.Partial("UserActivitiesPartialCoach", Model)
+            </div>
+            <div class="tab-pane @(showActivities == 2 ? "active" : "")" id="tab_5_3">
+                @Html.Partial("UserRoutinesPartialCoach", new Tuple<Shared.Model.User, Shared.Model.Routine[]>(Model, Model.RoutineAssigns.Select(t => t.Routine).Where(t => t.CoachId == ViewBag.User.Id).ToArray()))
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="user-email-dialog" data-backdrop="static">
+    <div class="modal-dialog modal-small">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Send Email to User</h4>
+            </div>
+            <div class="modal-body">
+                <h5>Subject</h5>
+                <input id="user-email-subject" class="form-control" type="text" />
+                <div class="user-email-container">
+                    <textarea class="user-email-area"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="user-email-back" type="button" class="btn btn-back sbold uppercase">Back</button>
+                <button id="user-email-send" type="button" class="btn login-btn sbold uppercase" data-dismiss="modal">Send</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,89 @@
+﻿.user-overview {
+  cursor: default; }
+  .user-overview .user-details .user-image {
+    text-align: center;
+    position: relative;
+    width: 100%; }
+    .user-overview .user-details .user-image img {
+      max-width: 100%;
+      margin: auto; }
+    .user-overview .user-details .user-image .fa-upload {
+      display: none;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.5);
+      opacity: 0.5;
+      transition: opacity ease 0.2s; }
+      .user-overview .user-details .user-image .fa-upload.hover {
+        opacity: 1; }
+      .user-overview .user-details .user-image .fa-upload::before {
+        display: inline-block;
+        vertical-align: middle;
+        font-size: 86px;
+        color: #ddd; }
+      .user-overview .user-details .user-image .fa-upload::after {
+        content: '';
+        display: inline-block;
+        height: 100%;
+        vertical-align: middle;
+        margin-left: -0.25em;
+        /* Adjusts for spacing */ }
+  .user-overview .user-details .image-actions {
+    margin: 10px 0; }
+  .user-overview .user-details ul {
+    list-style: none;
+    padding: 10px 0; }
+    .user-overview .user-details ul li {
+      padding: 5px 0;
+      color: #707070; }
+      .user-overview .user-details ul li i {
+        color: #b5c1c9; }
+      .user-overview .user-details ul li span {
+        color: #d83238;
+        font-weight: bold;
+        float: right; }
+  .user-overview .user-details-form .form-group label {
+    font-weight: bold; }
+  .user-overview .user-details-form .form-group p {
+    padding: 7px 0px 2px 13px; }
+  .user-overview .user-details-form .form-group select {
+    cursor: pointer;
+    padding-left: 8px; }
+  .user-overview .user-details-form .form-actions {
+    background-color: transparent;
+    border: none; }
+    .user-overview .user-details-form .form-actions .loading {
+      margin-left: 10px; }
+  .user-overview .coach-list .assign-selection select {
+    width: calc(100% - 110px);
+    margin-right: 10px;
+    height: 38px; }
+  .user-overview .coach-list .assign-selection button {
+    width: 100px; }
+  .user-overview .coach-list h3 {
+    margin-top: 0; }
+  .user-overview .coach-list ul {
+    list-style: none;
+    padding: 0;
+    border-top: solid 1px #ddd; }
+    .user-overview .coach-list ul li {
+      padding: 10px 0;
+      border-bottom: solid 1px #ddd;
+      color: #707070; }
+      .user-overview .coach-list ul li.empty {
+        display: none; }
+        .user-overview .coach-list ul li.empty:only-child {
+          display: block; }
+      .user-overview .coach-list ul li span.pull-left {
+        line-height: 24px; }
+  .user-overview .coach-list button:disabled {
+    opacity: 0.5;
+    pointer-events: none; }
+
+.dataTables_wrapper button[disabled] {
+  opacity: 0.5; }
+

@@ -1,0 +1,380 @@
+﻿@using BioConnected.Helpers
+@using Shared.Models;
+<!DOCTYPE html>
+<!--
+Template Name: Metronic - Responsive Admin Dashboard Template build with Twitter Bootstrap 3.3.6
+Version: 4.5.4
+Author: KeenThemes
+Website: http://www.keenthemes.com/
+Contact: support@keenthemes.com
+Follow: www.twitter.com/keenthemes
+Like: www.facebook.com/keenthemes
+Purchase: http://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes
+License: You must have a valid license purchased only from themeforest(the above link) in order to legally use the theme for your project.
+-->
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+<!-- BEGIN HEAD -->
+
+<head>
+    <meta charset="utf-8" />
+    <title>BioConnected | @ViewBag.Title</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv=”Content-Security-Policy” content=”upgrade-insecure-requests”>
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <link href="~/Content/Googlepisfont.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/assets/global/plugins/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/assets/global/plugins/dropzone/basic.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/assets/global/plugins/dropzone/dropzone.min.css" rel="stylesheet" type="text/css" />
+
+    <link href="~/Content/assets/global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/toggle-switch.css" rel="stylesheet" type="text/css" />
+    <!-- END GLOBAL MANDATORY STYLES -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    @RenderSection("pagepluginstyles", required: false)
+    <!-- END PAGE LEVEL PLUGINS -->
+    <!-- BEGIN THEME GLOBAL STYLES -->
+    <link href="~/Content/assets/global/css/components.min.css" rel="stylesheet" id="style_components" type="text/css" />
+    <link href="~/Content/assets/global/css/plugins.min.css" rel="stylesheet" type="text/css" />
+    <!-- END THEME GLOBAL STYLES -->
+    <!-- BEGIN THEME LAYOUT STYLES -->
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/assets/layouts/layout/css/layout.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/assets/layouts/layout/css/themes/darkblue.css" rel="stylesheet" type="text/css" id="style_color" />
+    <link href="~/Content/assets/layouts/layout/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <!-- END THEME LAYOUT STYLES -->
+    <!-- BEGIN PAGE STYLES -->
+    @RenderSection("pagestyles", required: false)
+    <!-- END PAGE STYLES -->
+
+    <!-- START FAVICON -->
+    <link rel="icon" type="image/png" href="~/Content/Theme/Images/fav-icon.png">
+    <!-- END FAVICON -->
+
+</head>
+<!-- END HEAD -->
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <!-- BEGIN HEADER -->
+    <div class="page-header navbar navbar-fixed-top">
+        <!-- BEGIN HEADER INNER -->
+        <div class="page-header-inner ">
+            <!-- BEGIN LOGO -->
+            <div class="page-logo">
+                <a href="~/">
+                    <img src="~/Content/Theme/Images/Logo.png" alt="logo" class="logo-default" />
+                </a>
+                <div class="menu-toggler sidebar-toggler hide">
+                </div>
+            </div>
+            <!-- END LOGO -->
+            <!-- BEGIN TOP NAVIGATION MENU -->
+            <div class="top-menu">
+                <ul class="nav navbar-nav pull-right">
+                    <li>
+                        <div class="btn-group">
+                            <button class="unit-toggle dropdown-toggle" data-toggle="dropdown">
+                                <span id="unit-type-display"></span>
+                                <i class="fa fa-angle-down"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="" onclick="UnitToggle.Set('METRIC');">Metric</a>
+                                </li>
+                                <li>
+                                    <a href="" onclick="UnitToggle.Set('IMPERIAL');">Imperial</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:;" class="menu-toggler responsive-toggler base-menu-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <img src="~/Content/assets/layouts/layout/img/sidebar_inline_toggler_icon_default.jpg" alt="Alternate Text" />
+                        </a>
+                    </li>
+                    <li class="dropdown dropdown-user">
+                        <a href="javascript:;" class="dropdown-toggle base-menu-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
+                            <span class="username username-hide-on-mobile"> @ViewData["UserName"] </span>
+                            <i class="fa fa-angle-down"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-default">
+                            <li>
+                                <a href="/Home/MyProfile">
+                                    <i class="icon-user"></i> My Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/Account/Logout">
+                                    <i class="icon-key"></i> Log Out
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- END TOP NAVIGATION MENU -->
+        </div>
+        <!-- END HEADER INNER -->
+    </div>
+    <!-- END HEADER -->
+    <!-- BEGIN HEADER & CONTENT DIVIDER -->
+    <div class="clearfix"> </div>
+    <!-- END HEADER & CONTENT DIVIDER -->
+    <!-- BEGIN CONTAINER -->
+    <div class="page-container">
+        <!-- BEGIN SIDEBAR -->
+        <div class="page-sidebar-wrapper">
+            <!-- BEGIN SIDEBAR -->
+            <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+            <!-- DOC: Change data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+            <div class="page-sidebar navbar-collapse collapse">
+                <!-- BEGIN SIDEBAR MENU -->
+                <!-- DOC: Apply "page-sidebar-menu-light" class right after "page-sidebar-menu" to enable light sidebar menu style(without borders) -->
+                <!-- DOC: Apply "page-sidebar-menu-hover-submenu" class right after "page-sidebar-menu" to enable hoverable(hover vs accordion) sub menu mode -->
+                <!-- DOC: Apply "page-sidebar-menu-closed" class right after "page-sidebar-menu" to collapse("page-sidebar-closed" class must be applied to the body element) the sidebar sub menu mode -->
+                <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+                <!-- DOC: Set data-keep-expand="true" to keep the submenues expanded -->
+                <!-- DOC: Set data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+                <ul class="page-sidebar-menu  page-header-fixed " data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+                    <!-- DOC: To remove the sidebar toggler from the sidebar you just need to completely remove the below "sidebar-toggler-wrapper" LI element -->
+                    <li class="sidebar-toggler-wrapper">
+                        <!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+                        <div class="sidebar-toggler base-menu-toggle">
+                            <img src="~/Content/assets/layouts/layout/img/sidebar_inline_toggler_icon_default.jpg" alt="Alternate Text" />
+                        </div>
+                        <!-- END SIDEBAR TOGGLER BUTTON -->
+                    </li>
+
+                    @using (Html.BeginForm("Search", "User", FormMethod.Post, new { @class = "sidebar-search" }))
+                    {
+                        <a href="javascript:;" class="remove">
+                            <i class="icon-close"></i>
+                        </a>
+                        <div class="input-group">
+                            <input type="text" class="form-control search-box" name="SearchText" placeholder="Search Users...">
+                            <span class="input-group-btn">
+                                <a href="javascript:;" class="btn submit">
+                                    <i class="icon-magnifier"></i>
+                                </a>
+                            </span>
+                        </div>
+                    }
+                    @if (((UserPermissions)ViewData["Permissions"]).MatchesPermission(UserPermissions.ADMIN))
+                    {
+                        <li class="heading">
+                            <h2 style="color:white;font-size:24px;">Administration</h2>
+                        </li>
+                        <li class="nav-item start @Html.IsSelected(actions: null, controllers: "Home", cssClass: "active")">
+                            <a href="/" class="nav-link nav-toggle">
+                                <i class="fa fa-home"></i>
+                                <span class="title">Dashboard</span>
+                                <span class="selected"></span>
+                            </a>
+                        </li>
+                        <li class="nav-item start @Html.IsSelected(actions: null, controllers: "User", cssClass: "active", shouldShow: ViewBag.IsCoach == null ? false : (bool)!ViewBag.IsCoach)">
+                            <a href="/User/Index" class="nav-link nav-toggle">
+                                <i class="fa fa-group"></i>
+                                <span class="title">Users</span>
+                                <span class="selected"></span>
+                            </a>
+                        </li>
+                        <li class="nav-item start @Html.IsSelected(actions: null, controllers: "Activity", cssClass: "active")">
+                            <a href="/Activity/Index" class="nav-link nav-toggle">
+                                <i class="fa fa-flag-checkered"></i>
+                                <span class="title">All Activities</span>
+                                <span class="selected"></span>
+                            </a>
+                        </li>
+                        <li class="nav-item start @Html.IsSelected(actions: null, controllers: "Coach", cssClass: "active")">
+                            <a href="/Coach/Index" class="nav-link nav-toggle">
+                                <i class="fa fa-bullhorn"></i>
+                                <span class="title">Coaches</span>
+                                <span class="selected"></span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item @Html.IsSelected(actions: null, controllers: "Troubleshooting", cssClass: "active open")">
+                            <a href="javascript:;" class="nav-link nav-toggle">
+                                <i class="fa fa-warning"></i>
+                                <span class="title">Troubleshooting</span>
+                                <span class="selected"></span>
+                                <span class="arrow @Html.IsSelected(actions: null, controllers: "Troubleshooting", cssClass: "open")"></span>
+                            </a>
+                            <ul class="sub-menu">
+                                <li class="nav-item @Html.IsSelected(actions: "IncompleteActivities", controllers: "Troubleshooting", cssClass: "active open")">
+                                    <a href="~/Troubleshooting/IncompleteActivities" class="nav-link">
+                                        <i class="fa fa-warning"></i>
+                                        <span class="title">Incomplete Activities</span>
+                                        <span class="selected"></span>
+                                    </a>
+                                </li>
+                                <li class="nav-item @Html.IsSelected(actions: "DeletedActivities", controllers: "Troubleshooting", cssClass: "active open")">
+                                    <a href="~/Troubleshooting/DeletedActivities" class="nav-link">
+                                        <i class="fa fa-trash"></i>
+                                        <span class="title">Deleted Activities</span>
+                                        <span class="selected"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="heading">
+                            <h2 style="color:white;font-size:24px;">Coach</h2>
+                        </li>
+                    }
+                    
+                    <li class="nav-item start @Html.IsSelected(actions: null, controllers: "User", cssClass: "active", shouldShow: ViewBag.IsCoach == null ? false : (bool)ViewBag.IsCoach)">
+                        <a href="/User/CoachIndex" class="nav-link nav-toggle">
+                            <i class="fa fa-group"></i>
+                            <span class="title">Assigned Users</span>
+                            <span class="selected"></span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item start @Html.IsSelected(actions: null, controllers: "Routine", cssClass: "active")">
+                        <a href="/Routine/Index" class="nav-link nav-toggle">
+                            <i class="fa fa-bullhorn"></i>
+                            <span class="title">Routines</span>
+                            <span class="selected"></span>
+                        </a>
+                    </li>
+
+                </ul>
+                <!-- END SIDEBAR MENU -->
+                <!-- END SIDEBAR MENU -->
+            </div>
+            <!-- END SIDEBAR -->
+        </div>
+        <!-- END SIDEBAR -->
+        <!-- BEGIN CONTENT -->
+        <div class="page-content-wrapper">
+            <!-- BEGIN CONTENT BODY -->
+            <style media="print" type="text/css">
+                #page-content {
+                    padding: 0 !important;
+                }
+            </style>
+            <div class="page-content" id="page-content">
+                <!-- BEGIN PAGE HEADER-->
+                <!-- BEGIN PAGE BAR -->
+                <div class="page-bar">
+                    <h2 class="page-title pull-left"><span>@ViewBag.Title</span> <small>@ViewBag.Subtitle</small></h2>
+                    <div class="page-title pull-right">@Html.Raw(ViewBag.TitleButton)</div>
+                    <div class="clearfix"></div>
+                    <ul class="page-breadcrumb">
+                        <li>
+                            <i class="fa fa-home"></i>
+                            <a href="/">Home</a>
+                            @if (ViewBag.Title != "Dashboard")
+                            {
+                                <i class="fa fa-angle-right"></i>
+                            }
+                        </li>
+                        @if (ViewBag.Breadcrumbs != null && ViewBag.Breadcrumbs.GetType() == (new string[0]).GetType())
+                        {
+                            foreach (var str in ViewBag.Breadcrumbs)
+                            {
+                                <li>
+                                    @Html.Raw(str)
+                                    <i class="fa fa-angle-right"></i>
+                                </li>
+                            }
+                        }
+                        @if (ViewBag.Title != "Dashboard")
+                        {
+                            <li>
+                                <span>@ViewBag.Title</span>
+                            </li>
+                        }
+                        
+                    </ul>
+                </div>
+                <!-- END PAGE BAR -->
+                <!-- END PAGE HEADER-->
+                <div>
+                    @RenderBody()
+                </div>
+                <div class="footer-spacer clearfix"></div>
+            </div>
+            <!-- END CONTENT BODY -->
+            <div class="modal fade" id="idle-timeout-dialog" data-backdrop="static">
+                <div class="modal-dialog modal-small">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Your session is about to expire.</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>
+                                <i class="fa fa-warning font-red"></i> You session will be ended in
+                                <span id="idle-timeout-counter"></span> seconds.
+                            </p>
+                            <p> Do you want to continue your session? </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="idle-timeout-dialog-logout" type="button" class="btn btn-back sbold uppercase">No, Logout</button>
+                            <button id="idle-timeout-dialog-keepalive" type="button" class="btn login-btn sbold uppercase" data-dismiss="modal">Yes, Keep Working</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END CONTAINER -->
+    </div>
+    <!-- BEGIN FOOTER -->
+    <div class="page-footer">
+        <div class="page-footer-inner">
+            2016 &copy; BioConnected.
+        </div>
+        <div class="scroll-to-top">
+            <i class="icon-arrow-up"></i>
+        </div>
+    </div>
+    <!-- END FOOTER -->
+    <!--[if lt IE 9]>
+    <script src="~/Content/assets/global/plugins/respond.min.js"></script>
+    <script src="~/Content/assets/global/plugins/excanvas.min.js"></script>
+    <![endif]-->
+	
+    <!-- BEGIN CORE PLUGINS -->
+    <script src="~/Content/assets/global/plugins/jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/js.cookie.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/jquery.blockui.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/jquery-idle-timeout/jquery.idletimeout.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/jquery-idle-timeout/jquery.idletimer.js" type="text/javascript"></script>
+    <script src="~/Scripts/moment-with-locales.min.js"></script>
+    <script src="~/Scripts/UnitToggle.js" type="text/javascript"></script>
+    <!-- END CORE PLUGINS -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    @RenderSection("pageplugins", required: false)
+    <!-- END PAGE LEVEL PLUGINS -->
+    <!-- BEGIN THEME GLOBAL SCRIPTS -->
+    <script src="~/Content/assets/global/scripts/app.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/Site.js" type="text/javascript"></script>
+    <!-- END THEME GLOBAL SCRIPTS -->
+    <!-- BEGIN PAGE LEVEL SCRIPTS -->
+    @RenderSection("pagescripts", required: false)
+    <!-- END PAGE LEVEL SCRIPTS -->
+    <!-- BEGIN THEME LAYOUT SCRIPTS -->
+    <script src="~/Content/assets/layouts/layout/scripts/layout.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/layouts/layout/scripts/demo.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/layouts/global/scripts/quick-sidebar.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/ui-idletimeout.js" type="text/javascript"></script>
+    <!-- END THEME LAYOUT SCRIPTS -->
+</body>
+
+</html>

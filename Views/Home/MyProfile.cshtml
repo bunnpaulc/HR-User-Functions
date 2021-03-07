@@ -1,0 +1,33 @@
+﻿@model Shared.Model.User
+
+@{
+    Layout = "../Shared/_ListLayout.cshtml";
+
+    ViewBag.Title = Model.FirstName + " " + Model.LastName;
+    ViewBag.Subtitle = "My Profile";
+
+}
+
+@section pagestyles {
+    <link href="~/Content/UserDetails.min.css" rel="stylesheet" type="text/css" />
+}
+
+@section pagescripts{
+    <script src="~/Scripts/CoachActivity.js" type="text/javascript"></script>
+    <script type="text/javascript">
+            
+            var ContextData = {
+                UserId: '@Model.Id',
+                StartDate: null,
+                EndDate: null,
+            }
+
+    </script>
+    <script src="~/Scripts/ProfileDetails.js" type="text/javascript"></script>
+}
+
+<div class="tabbable-custom">
+    <div class="tab-pane active" id="tab_5_1">
+        @Html.Partial("MyProfileDetailsPartial", Model)
+    </div>
+</div>

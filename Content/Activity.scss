@@ -1,0 +1,249 @@
+﻿.user-activity {
+    color: #707070;
+
+    #activity-map {
+        height: 400px;
+    }
+
+    #activity-bpm-zones {
+        height: 300px;
+
+        a {
+            display: none!important;
+        }
+    }
+
+    .detail-list {
+        list-style: none;
+        padding: 10px 0;
+
+        li {
+            display: inline-block;
+            padding: 5px 0;
+
+            &:not(:last-child) {
+                margin-right: 10px;
+            }
+
+            h2 {
+                margin: 0;
+            }
+        }
+
+        .detail-col {
+            margin-right: 10px;
+            display: inline-block;
+
+            span {
+                margin-left: 10px;
+                float: right;
+            }
+        }
+
+        .detail-row {
+            display: inline-block;
+
+            &:not(:last-child) {
+                margin-right: 10px;
+            }
+
+            h1, h2, h3, h4, .detail {
+                display: inline-block;
+
+                &:not(:last-child) {
+                    margin-right: 10px;
+                }
+            }
+        }
+
+        i {
+            width: 20px;
+            text-align: center;
+            color: #b5c1c9;
+        }
+
+        h1, h2, h3, h4, .detail {
+            span {
+                color: #d83238;
+                font-weight: bold;
+            }
+        }
+    }
+
+    .activity-stats {
+        padding-left: 20px;
+
+        .stat-image {
+            padding: 2px;
+            height: 20px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 1279px) {
+            padding-left: 0;
+        }
+    }
+
+    .fitness-score-table {
+        width: calc(100% - 10px);
+        height: 100%;
+        margin: 5px;
+
+        .heading th, .heading td{
+            padding: 5px;
+            text-align: center!important;
+        }
+
+        .heading th {
+            padding-bottom: 0;
+        }
+
+        .heading td {
+            padding-top: 0;
+        }
+
+        .stat {
+            &:nth-child(odd) {
+                background-color: #f4f4f4;
+            }
+
+            td {
+                padding: 5px;
+                text-align: center;
+
+                &:first-child {
+                    font-weight: bold;
+                    text-align: left;
+                }
+
+                &:last-child {
+                    text-align: right;
+                }
+            }
+        }
+    }
+
+    .main-stats {
+        .detail-list {
+            padding-top: 0;
+        }
+    }
+
+    .stat-line {
+        &:not(:last-child) {
+            margin-bottom: 25px;
+        }
+
+        &::after {
+            content: '';
+            display: block;
+            clear: both;
+        }
+
+        .left-container {
+            width: 400px;
+            float: left;
+
+            @media (max-width: 1279px) {
+                width: 100%;
+            }
+            
+            h2 {
+                margin-top: 55px;
+
+                @media (max-width: 1279px) {
+                    margin-top: 0;
+                }
+            }
+        }
+
+        .split-button-container {
+            position: relative;
+
+            .split-buttons {
+                margin-bottom: 5px;
+
+                @media (min-width: 1280px) {
+                    position: absolute;
+                    top: 5px;
+                }
+
+                > div, > button {
+                    display: inline-block;
+                }
+
+                select {
+                    height: 34px;
+                    padding: 0 5px;
+                    vertical-align: middle;
+
+                    &:disabled {
+                        opacity: 0.6; 
+                    }
+                }
+            }
+        }
+
+        .right-container {
+            width: calc(100% - 400px);
+            float: right;
+
+            @media (max-width: 1279px) {
+                width: 100%;
+            }
+        }
+
+        .chart {
+            overflow: visible!important;
+            margin-top: 15px;
+
+            .amcharts-main-div{
+                overflow: visible;
+                .amcharts-chart-div {
+                    overflow: visible!important;
+                    svg {
+                        overflow: visible;
+                    }
+                }
+            }
+
+            a {
+                display: none!important;
+            }
+        }
+
+        div.chart-stats {
+            height: 100%;
+
+            &::after {
+                content: '';
+                display: inline-block;
+                width: 0px;
+                height: 100%;
+            }
+        }
+        
+        h4 {
+            span {
+                color: #d83238;
+                font-weight: bold;
+            }
+        }
+    }
+
+    .hm-table {
+        width: 100%;
+        margin-bottom: 15px;
+
+        tr {
+            &:nth-child(even) {
+                background-color: #f4f4f4;
+            }
+
+            td, th {
+                text-align: center;
+                padding: 5px;
+            }
+        }
+    }
+}

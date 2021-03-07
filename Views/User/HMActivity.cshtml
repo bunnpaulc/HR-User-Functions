@@ -1,0 +1,234 @@
+﻿@using BioConnected.Helpers
+@using Shared.Model
+@model Activity
+
+@section pagestyles {
+    <link href="~/Content/Activity.min.css" rel="stylesheet" type="text/css" />
+}
+
+@section pageplugins {
+    <script src="~/Scripts/moment-with-locales.min.js"></script>
+    <script src="~/Content/assets/global/plugins/amcharts/amcharts.js"></script>
+    <script src="~/Content/assets/global/plugins/amcharts/serial.js"></script>
+}
+
+@section pagescripts {
+    <script type="text/javascript">
+        var activityId = "@Model.Id";
+        var activityStartDate = new Date(@Model.StartTime.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds);
+
+        var bpmExtend = {
+            "valueAxes": [{
+                "guides": [{
+                    "dashLength": 6,
+                    "inside": true,
+                    "above": false,
+                    "label": "Long Term Trend",
+                    "lineAlpha": 0.7,
+                    "lineColor": "#000",
+                    "value": @ViewBag.LongTermHR,
+                }],
+            }]
+        }
+
+        var variabilityExtend = {
+            "valueAxes": [{
+                "minimum": 0,
+                "maximum": 100,
+                "guides": [{
+                    "dashLength": 6,
+                    "inside": true,
+                    "above": false,
+                    "label": "Long Term Trend",
+                    "lineAlpha": 1,
+                    "lineColor": "#000",
+                    "value": @ViewBag.LongTermHRV,
+                }],
+            }]
+        };
+    </script>
+    <script src="~/Scripts/HMActivity.js"></script>
+}
+
+@{
+    ViewBag.Title = Model.Title;
+    ViewBag.Subtitle = "Activity Details";
+
+    ViewBag.Breadcrumbs = new string[] { "<a href=\"/User/Index\">Users</a>", "<a href=\"/User/Details/" + Model.User.Id + "\">" + Model.User.FirstName + " " + Model.User.LastName + "</a>" };
+    ViewBag.TitleButton = "<button class=\"btn blue\"><i class=\"fa fa-envelope\"></i> Email User</button>";
+
+    var bleData = Model.BleDatas.OrderBy(t => t.DateCreated).ToList();
+    var endBle = bleData.LastOrDefault();
+    var duration = new TimeSpan(0, 0, endBle.Seconds);
+}
+
+<div class="user-activity">
+    <div class="activity-stats">
+        <div class="main-stats">
+            <div class="detail-list">
+                <div class="detail-row">
+                    <h2 class="detail">Type: <span class="value">@ViewBag.ActivityType</span></h2>
+                    @*<h2 class="detail">End: <span class="value" js-date="@Model.EndTime.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds">@Model.EndTime.Value.ToString("hh:mmtt")</span></h2>*@
+                </div>
+                <div class="detail-row">
+                    <h2 class="detail">Start: <span class="value" js-date="@Model.StartTime.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds">@Model.StartTime.Value.ToString("hh:mmtt")</span></h2>
+                    <h2 class="detail">Duration: <span class="value">@string.Format("{0}:{1:D2}:{2:D2}", Math.Floor(duration.TotalHours), duration.Minutes, duration.Seconds)</span></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-sm-12 stat-line">
+            <h2 style="margin-top: 0;">Heart Rate</h2>
+            <h3>Ranking Table</h3>
+            <table class="hm-table hm-score-table">
+                <tr><th>Males</th><th></th><th>Females</th></tr>
+                <tr><td>&lt; 52</td>    <td>Excellent</td>      <td>&lt; 55</td></tr>
+                <tr><td>52 - 57</td>    <td>Good</td>           <td>55 - 61</td></tr>
+                <tr><td>58 - 65</td>    <td>Above Average</td>  <td>62 - 68</td></tr>
+                <tr><td>66 - 71</td>    <td>Average</td>        <td>69 - 73</td></tr>
+                <tr><td>72 - 77</td>    <td>Below Average</td>  <td>74 - 77</td></tr>
+                <tr><td>78 - 82</td>    <td>Poor</td>           <td>79 - 84</td></tr>
+                <tr><td>&gt; 82</td>    <td>Very Poor</td>      <td>&gt; 84</td></tr>
+            </table>
+            <div class="col-md-6 col-xs-6">
+                <h3>This Activity</h3>
+                <h4>Ranking: <span class="value">@GetHRScoreRange((int)bleData.Average(t => t.BPM), Model.User.Gender == "Male")</span></h4>
+                <h4>Beats per Minute: <span class="value">@((int)bleData.Average(t => t.BPM)) bpm</span></h4>
+            </div>
+            <div class="col-md-6 col-xs-6">
+                <h3>Long Term</h3>
+                <h4>Ranking: <span class="value">@GetHRScoreRange(ViewBag.LongTermHR, Model.User.Gender == "Male")</span></h4>
+                <h4>Beats per Minute: <span class="value">@ViewBag.LongTermHR bpm</span></h4>
+                <h4>Change: <span class="value">@(((int)bleData.Average(t => t.BPM) - ViewBag.LongTermHR > 0 ? "+" : "") + ((int)bleData.Average(t => t.BPM) - ViewBag.LongTermHR))</span></h4>
+            </div>
+            <div class="clearfix"></div>
+            <div id="hr-chart" class="chart amcharts-autofetch" attr="HRHistory" value-format="bpm" title="HRV Heart Rate History" extend-obj="bpmExtend"></div>
+        </div>
+        <div class="col-lg-6 col-sm-12 stat-line">
+            <h2 style="margin-top: 0;">Variability</h2>
+            <h3>Ranking Table</h3>
+            <table class="hm-table hm-percent-table">
+                <tr><th>Ranking</th><th>Range</th></tr>
+                <tr><td>Very Relaxed</td>   <td>86 - 100%</td></tr>
+                <tr><td>Relaxed</td>        <td>76 - 85%</td></tr>
+                <tr><td>Calm</td>           <td>65 - 75%</td></tr>
+                <tr><td>In Sync</td>        <td>50 - 64%</td></tr>
+                <tr><td>Restless</td>       <td>35 - 49%</td></tr>
+                <tr><td>Unsettled</td>      <td>15 - 34%</td></tr>
+                <tr><td>Stressed</td>       <td>1 - 14%</td></tr>
+            </table>
+            <div class="col-md-6 col-xs-6">
+                <h3>This Activity</h3>
+                <h4>Ranking: <span class="value">@GetHRVScoreRange(BleData.ScaleHRV(endBle.MHRV.Value))</span></h4>
+                <h4>Variance: <span class="value">@(endBle.HRV.Value)ms - @BleData.ScaleHRV(endBle.MHRV.Value)%</span></h4>
+            </div>
+            <div class="col-md-6 col-xs-6">
+                <h3>Long Term</h3>
+                <h4>Ranking: <span class="value">@GetHRVScoreRange(BleData.ScaleHRV((int)ViewBag.LongTermHRVRank))</span></h4>
+                <h4>Variance: <span class="value">@(ViewBag.LongTermHRV)ms -@BleData.ScaleHRV((int)ViewBag.LongTermHRVRank)%</span></h4>
+                <h4>Change: <span class="value">@((endBle.HRV.Value - ViewBag.LongTermHRV > 0 ? "+" : "") + (endBle.HRV.Value - ViewBag.LongTermHRV))ms</span></h4>
+            </div>
+            <div class="clearfix"></div>
+            <div id="hrv-chart" class="chart amcharts-autofetch" attr="HRVHistory" value-format="variance" title="HRV Variability History" extend-obj="variabilityExtend"></div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetHRScoreRange(int score, bool sex)
+    {
+        if(sex)
+        {
+            if(score < 52)
+            {
+                return "Excellent";
+            }
+            else if (score < 58)
+            {
+                return "Good";
+            }
+            else if (score < 66)
+            {
+                return "Above Average";
+            }
+            else if (score < 72)
+            {
+                return "Average";
+            }
+            else if (score < 78)
+            {
+                return "Below Average";
+            }
+            else if (score < 82)
+            {
+                return "Poor";
+            }
+            else
+            {
+                return "Very Poor";
+            }
+        }
+        else
+        {
+            if (score < 55)
+            {
+                return "Excellent";
+            }
+            else if (score < 62)
+            {
+                return "Good";
+            }
+            else if (score < 69)
+            {
+                return "Above Average";
+            }
+            else if (score < 74)
+            {
+                return "Average";
+            }
+            else if (score < 79)
+            {
+                return "Below Average";
+            }
+            else if (score < 84)
+            {
+                return "Poor";
+            }
+            else
+            {
+                return "Very Poor";
+            }
+        }
+    }
+
+    string GetHRVScoreRange(int score)
+    {
+        if (score < 15)
+        {
+            return "Stressed";
+        }
+        else if (score < 35)
+        {
+            return "Unsettled";
+        }
+        else if (score < 50)
+        {
+            return "Restless";
+        }
+        else if (score < 65)
+        {
+            return "In Sync";
+        }
+        else if (score < 76)
+        {
+            return "Calm";
+        }
+        else if (score < 86)
+        {
+            return "Relaxed";
+        }
+        else
+        {
+            return "Very Relaxed";
+        }
+    }
+}

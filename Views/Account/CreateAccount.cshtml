@@ -1,0 +1,83 @@
+﻿@using BioConnected.Models
+@model CreateAccountViewModel
+@{
+    ViewBag.Title = "Create Account";
+    Layout = "~/Views/Shared/_LoginPartial.cshtml";
+}
+
+<div class="logo">
+    <img src="~/Content/Theme/Images/Logo.png" alt="" width="350" />
+</div>
+<div class="content outer">
+    @if (ViewBag.Success != null)
+            {
+        <div class="alert alert-success">
+            <strong>Success!</strong> @ViewBag.Success
+        </div>
+    }
+    @if (ViewBag.Error != null)
+            {
+        <div class="alert alert-danger">
+            <strong>Error!</strong> @ViewBag.Error
+        </div>
+    }
+    @if (ViewBag.Warning != null)
+            {
+        <div class="alert alert-warning">
+            <strong>Warning!</strong> @ViewBag.Warning
+        </div>
+    }
+    <div class="content-inner">
+        @using (Html.BeginForm("CreateAccount", "Account", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <h3 class="form-title">Sign up for a coach account</h3>
+
+            <h5 class="form-title">Enter your personal details:</h5>
+            <div class="form-group">
+                <div class="input-icon">
+                    <i class="fa fa-list-alt"></i>
+                    @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control", placeholder = "First Name" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-icon">
+                    <i class="fa fa-list-alt"></i>
+                    @Html.TextBoxFor(model => model.LastName, new { @class = "form-control", placeholder = "Last Name" })
+                </div>
+            </div>
+
+            <h5 class="form-title">Enter your account details:</h5>
+            <div class="form-group">
+                <div class="input-icon">
+                    <i class="fa fa-envelope"></i>
+                    @Html.TextBoxFor(model => model.Email, new { @class = "form-control", placeholder = "Email Address" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-icon">
+                    <i class="fa fa-lock"></i>
+                    @Html.PasswordFor(model => model.Password, new { @class = "form-control form-control-solid placeholder-no-fix", placeholder = "Password", autocomplete = "off" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-icon">
+                    <i class="fa fa-lock"></i>
+                    @Html.PasswordFor(model => model.ConfirmPassword, new { @class = "form-control form-control-solid placeholder-no-fix", placeholder = "Re-type your Password", autocomplete = "off" })
+                </div>
+            </div>
+
+            <label class="rememberme terms check mt-checkbox mt-checkbox-outline">
+                @Html.CheckBoxFor(model => model.Terms)
+                <p>I agree to the <a href="https://bioconnected.com/terms-and-conditions/" target="_blank">Terms and Conditions</a></p>
+                <span></span>
+            </label>
+            <div class="form-actions">
+                <button type="submit" class="btn pull-right mid-color login-btn">Submit</button>
+                <a href="Login" class="btn btn-back pull-left mid-color">Back</a>
+                <div class="clearfix"></div>
+            </div>
+        }
+    </div>
+</div>
+

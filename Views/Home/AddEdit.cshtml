@@ -1,0 +1,205 @@
+﻿@model Shared.Firmware
+@{
+    ViewBag.Title = "Firmware Add Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="page-content">
+    <!-- BEGIN PAGE BAR -->
+    <div class="page-bar">
+        <ul class="page-breadcrumb">
+            <li>
+                <a href="/Home">Home</a>
+                <i class="fa fa-circle"></i>
+            </li>
+            <li>
+                @if (Model.Id == null)
+                {
+                    <span>Create Firmware</span>
+
+                }
+                else
+                {
+                    <span>Edit Firmware</span>
+                }
+
+            </li>
+        </ul>
+
+    </div>
+
+    <!-- END PAGE BAR -->
+    <!-- BEGIN PAGE TITLE-->
+    @if (Model.Id == null)
+    {
+        <h3 class="page-title">
+            Create Firmware
+        </h3>
+    }
+    else
+    {
+        <h3 class="page-title">
+            Edit Firmware
+        </h3>
+    }
+    
+    <!-- END PAGE TITLE-->
+    <!-- END PAGE HEADER-->
+    <div class="edit-panel" style="max-width: 500px;">
+        <form method="post" class="form edit-helper-form" action="/Home/AddUpdate" id="form-firmware">
+            <input type="hidden" name="ID" value="@Model.Id" />
+            <div class="form-group">
+                <label>Name</label>
+                <label style="color:red;display:none;" id="NameRequired">* Required</label>
+                <input type="text" class="form-control" id="Name" name="Name" value="@Model.Name" required />
+            </div>
+            <div class="form-group">
+                <label>Source Number</label>
+                <label style="color:red;display:none;" id="SourceNumberRequired">* Required</label>
+                <label style="color:red;display:none;" id="SourceNumberValid">* Must be whole number</label>
+                <input type="text" class="form-control" id="SourceNumber" name="SourceNumber" value="@Model.SourceNumber" required />
+            </div>
+            <div class="form-group">
+                <label>Target Number</label>
+                <label style="color:red;display:none;" id="TargetNumberRequired">* Required</label>
+                <label style="color:red;display:none;" id="TargetNumberValid">* Must be whole number</label>
+                <input type="text" class="form-control" id="TargetNumber" name="TargetNumber" value="@Model.TargetNumber" required />
+            </div>
+            <div class="form-group">
+                <label>Firmware URL</label>
+                <label style="color:red;display:none;" id="FirmwareRequired">* Required</label>
+                <input type="text" class="form-control" id="FirmwareURL" name="FirmwareURL" value="@Model.FirmwareURL" required />
+
+            </div>
+        </form>
+        <div class="form-dropzone">
+            <form action="/File/Upload" method="post" enctype="multipart/form-data" class="dropzone">
+                <div class="fallback">
+                    Please enable Javascript.
+                </div>
+            </form>
+        </div>
+
+
+        <button onclick="Save()" class="btn bg-color addedit">Save</button>
+        <a href="/Home/Index" class="btn bg-color addedit cancel-button">Cancel</a>
+
+    </div>
+
+
+
+</div>
+
+
+<script>
+    function Save() {
+
+        $("#NameRequired").hide();
+        $("#SourceNumberRequired").hide();
+        $("#SourceNumberValid").hide();
+        $("#TargetNumberRequired").hide();
+        $("#TargetNumberValid").hide();
+        $("#FirmwareRequired").hide();
+
+        var errors = 0;
+
+        if ($("#Name").val() == "") {
+            $("#NameRequired").show();
+            errors++;
+        }
+
+        var sourcenumber = $("#SourceNumber").val();
+
+        if ($("#SourceNumber").val() == "") {
+            $("#SourceNumberRequired").show();
+            errors++;
+        } else if (!isInt(sourcenumber)) {
+            $("#SourceNumberValid").show();
+            errors++;
+        }
+
+        if ($("#TargetNumber").val() == "") {
+            $("#TargetNumberRequired").show();
+            errors++;
+        } else if (!isInt($("#TargetNumber").val())) {
+            $("#TargetNumberValid").show();
+            errors++;
+        }
+
+        if ($("#FirmwareURL").val() == "") {
+            $("#FirmwareRequired").show();
+            errors++;
+
+        }
+
+        if (errors > 0) {
+            return;
+        }
+
+        $("#form-firmware").submit();
+    }
+
+    try {
+        Dropzone.autoDiscover = false;
+        var doneCalls = [];
+        var dropzoneOptions = {
+            accept: function (file, done) {
+                $.ajax({
+                    url: "/File/Check",
+                    method: 'POST',
+                    data: { fileName: file.name },
+                    success: function (data) {
+                        if (data == true) {
+                            done();
+                        } else {
+                            if (data == "File Exists") {
+                                doneCalls.push(done);
+                                var call = doneCalls.length - 1;
+
+                                var node = document.createElement('div');
+                                node.className = 'dz-overwrite-confirm';
+                                node.innerHTML =
+                                '<span class="alert-info">Overwrite Existing File?</span>\
+                                <div class="btn-group">\
+                                    <button type="button" class="btn green glyphicon glyphicon-ok" onclick="doneCalls[' + call + '](); this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);"></button>\
+                                    <button type="button" class="btn red glyphicon glyphicon-remove" onclick="doneCalls[' + call + '](&quot;File already exists&quot;); this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);"></button>\
+                                </div>';
+                                file.previewElement.appendChild(node);
+                            } else {
+                                done(data);
+                            }
+                        }
+                    },
+                    dataType: 'json'
+                });
+            },
+            dictDefaultMessage: "Click or drop files here to upload"
+        }
+    } catch (ex) {
+
+    }
+
+    function isInt(n) {
+        return n % 1 === 0;
+    }
+
+    $(document).ready(function () {
+        var dropzone = $(".form-dropzone");
+        dropzoneOptions['acceptedFiles'] = '.bin';
+        var input = $("#FirmwareURL");
+        var myDropzone = new Dropzone(dropzone.find("form")[0], dropzoneOptions);
+        myDropzone.on('success', function (file, response) {
+            if (input.hasClass('file-select')) {
+                var urlSplit = response['url'].split('/');
+                var filename = urlSplit[urlSplit.length - 1];
+                filename = filenameParser(filename);
+                input.append($('<option value="' + response['url'] + '">' + filename + '</option>'));
+                input.val(response['url']).trigger('change');
+            } else {
+                input.val(response['url']);
+            }
+        });
+    });
+</script>
+

@@ -1,0 +1,358 @@
+﻿@using Shared.Model;
+@using BioConnected.Models;
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var UserThisMonth = (List<User>)ViewData["UsersThisMonth"];
+    var UserCountThisMonth = UserThisMonth.Count();
+
+    var ActivitiesThisMonth = (List<Activity>)ViewData["ActivitiesThisMonth"];
+    var ActivityCountThisMonth = ActivitiesThisMonth.Count();
+
+    var Top6Activities = (List<DashboardGraphModel>)ViewData["TopActivitiesThisMonth"];
+    var ActivitiesEachDay = (List<DashboardGraphModel>)ViewData["ActivitiesEachDay"];
+
+    var MapData = (List<DashboardMapGraphModel>)ViewData["MapData"];
+
+    var StartOfMonth = (string)ViewData["StartOfMonthDate"];
+
+
+}
+
+@section pagepluginstyles {
+    <link href="~/Content/assets/global/plugins/morris/morris.css" rel="stylesheet" type="text/css" />
+}
+
+@section pageplugins {
+    <script src="~/Content/assets/global/plugins/morris/morris.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/morris/raphael-min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/counterup/jquery.waypoints.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/counterup/jquery.counterup.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/flot/jquery.flot.min.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/flot/jquery.flot.resize.min.js" type="text/javascript"></script>
+
+    <script src="~/Content/assets/global/plugins/datatables/datatables.js" type="text/javascript"></script>
+    <script src="~/Content/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
+
+
+    <script src="~/Scripts/Datatable.js" type="text/javascript"></script>
+    <script src="~/Scripts/EditPanel.js" type="text/javascript"></script>
+    <script src="/Content/assets/global/plugins/dropzone/dropzone.min.js" type="text/javascript"></script>
+}
+
+@section pagescripts {
+    <script src="~/Content/assets/pages/scripts/dashboard.min.js" type="text/javascript"></script>
+
+<script>
+
+    RadarGraph();
+    BarGraph();
+    LeafMap();
+
+    function LeafMap(){
+
+        var bounds = [
+            [-82, 180], // Southwest coordinates
+            [82, -180]  // Northeast coordinates
+        ];
+
+        var mymap = L.map('MapGraph');
+
+        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 13,
+            minZoom: 2
+        }).addTo(mymap);
+
+        mymap.setMaxBounds(bounds);
+        mymap.on('drag', function() {
+            mymap.panInsideBounds(bounds, { animate: false });
+        });
+
+        mymap.on('load', function(e) {
+            var markers = L.markerClusterGroup();
+
+            @foreach (var map in MapData)
+            {
+                var duration = new TimeSpan(0, 0, map.Seconds);
+                <text>
+                    var marker = L.marker([@map.Lat, @map.Long]);
+                    markers.addLayer(marker);
+                    marker.bindPopup("<div>Activity: @map.ActivityType</div>\
+                                    <div>Activity Name: @map.Title</div>\
+                                    <div>Duration: @duration</div>\
+                                    <div>User Name: @map.FirstName  @map.LastName</div>\
+                                    <a href=/User/Details/@map.UserId>Go to User</a>");
+                </text>
+                }
+
+            mymap.addLayer(markers);
+        });
+
+        mymap.setView([25.2744, 133.7751], 1);
+    }
+
+    function onMarkerClick(userId){
+        return function(ev) {
+            window.location.href = '/User/Details/' + userId;
+        }
+    }
+
+    function BarGraph(){
+
+        var BarValues = [];
+
+        @foreach (var activity in ActivitiesEachDay)
+        {
+            <text>
+        BarValues.push({
+            "category": '@activity.Key',
+            "visits": @activity.Value,
+        });
+        </text>
+        }
+
+        var chart = AmCharts.makeChart( "ActivitiesBarGraph", {
+            "type": "serial",
+            "theme": "light",
+            "parseDates": true,
+            "dataProvider": BarValues,
+            "valueAxes": [ {
+                "gridColor": "#FFFFFF",
+                "gridAlpha": 0.2,
+                "dashLength": 0
+            } ],
+            "gridAboveGraphs": true,
+            "startDuration": 1,
+            "graphs": [ {
+                "balloonText": "[[category]]: <b>[[visits]]</b>",
+                "fillAlphas": 0.8,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "valueField": "visits"
+            } ],
+            "chartCursor": {
+                "categoryBalloonEnabled": false,
+                "cursorAlpha": 0,
+                "zoomable": false
+            },
+            "categoryField": "category",
+            "categoryAxis": {
+                "gridPosition": "start",
+                "gridAlpha": 0,
+                "tickPosition": "start",
+                "tickLength": 20
+            },
+            "chartScrollbar": {
+                "scrollbarHeight": 5,
+                "backgroundAlpha": 0.1,
+                "backgroundColor": "#868686",
+                "selectedBackgroundColor": "#67b7dc",
+                "selectedBackgroundAlpha": 1
+            },
+            "export": {
+                "enabled": true
+            }
+        });
+
+        function zoomChart(){
+            chart.zoomToCategoryValues('@ViewData["StartOfMonth"]', '@ViewData["EndOfMonth"]');
+        }
+
+        chart.addListener("init", zoomChart);
+    }
+
+
+
+    function RadarGraph(){
+        var RadarValues = [];
+
+        @foreach (var activity in Top6Activities)
+            {
+                <text>
+                RadarValues.push({
+                    "activity": '@activity.Key',
+                    "value": @activity.Value,
+                });
+                </text>
+            }
+        @if (Top6Activities.Count() > 0)
+        {
+            <text>
+            var chart = AmCharts.makeChart("TopActivitiesRadarGraph", {
+                "type": "radar",
+                "theme": "light",
+                "dataProvider": RadarValues,
+                "valueAxes": [{
+                    "axisTitleOffset": 20,
+                    "minimum": 0,
+                    "axisAlpha": 0.15
+                }],
+                "startDuration": 2,
+                "graphs": [{
+                    "balloonText": "[[value]] activities completed",
+                    "bullet": "round",
+                    "lineThickness": 2,
+                    "valueField": "value"
+                }],
+                "categoryField": "activity",
+                "export": {
+                    "enabled": true
+                }
+                });
+            </text>
+        }
+        else
+        {
+            <text>
+            $("#TopActivitiesRadarGraph").html("No Activities Completed this Month");
+            </text>
+        }
+
+    }
+</script>
+}
+
+<div class="modal-holder">
+    <div class="modal fade" id="largeAddEditModal" role="form" aria-hidden="true">
+        <div class="modal-dialog edit-panel-modal">
+            <div class="modal-content modal-main">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn mid-color modal-okay"></button>
+                </div>
+            </div>
+            <div class="modal-content modal-loader">
+                <div class="modal-header">
+                    <img src="~/Content/Theme/Images/loading-spinner-grey.gif" alt="" class="loading">
+                    <span> &nbsp;&nbsp;Loading... </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade bs-modal-sm" id="smallAlertModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn login-btn modal-okay" data-dismiss="modal">Okay</button>
+                </div>
+            </div>
+            <div class="modal-content modal-loader hidden">
+                <div class="modal-header">
+                    <img src="~/Content/Theme/Images/loading-spinner-grey.gif" alt="" class="loading">
+                    <span> &nbsp;&nbsp;Loading... </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="dashboard-stat blue">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="details">
+                    <div class="number">
+                        <span data-counter="counterup" data-value="@UserCountThisMonth">@UserCountThisMonth</span>
+                    </div>
+                    <div class="desc"> New Users This Month </div>
+                </div>
+                <a class="more" href="/User/Index?date=@StartOfMonth">
+                    View users
+                    <i class="m-icon-swapright m-icon-white"></i>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="dashboard-stat green">
+                <div class="visual">
+                    <i class="fa fa-dashboard"></i>
+                </div>
+                <div class="details">
+                    <div class="number">
+                        <span data-counter="counterup" data-value="@ActivityCountThisMonth">@ActivityCountThisMonth</span>
+                    </div>
+                    <div class="desc"> Activities Completed This Month </div>
+                </div>
+                <a class="more" href="/Home/Activities">
+                    View activities
+                    <i class="m-icon-swapright m-icon-white"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="portlet light bordered">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="icon-bar-chart graph-titles"></i>
+                        <span class="caption-subject bold uppercase graph-titles"> Activities Each Day</span>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div id="ActivitiesBarGraph"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <!-- BEGIN CHART PORTLET-->
+            <div class="portlet light bordered">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="icon-bar-chart graph-titles"></i>
+                        <span class="caption-subject bold uppercase graph-titles"> Top Activities This Month</span>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div id="TopActivitiesRadarGraph"></div>
+                </div>
+            </div>
+            <!-- END CHART PORTLET-->
+        </div>
+    </div>
+    <div class="row map-row">
+        <!-- BEGIN CHART PORTLET-->
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="icon-bar-chart graph-titles"></i>
+                    <span class="caption-subject bold uppercase graph-titles"> Location Of Activities</span>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="MapGraph"> </div>
+            </div>
+        </div>
+        <!-- END CHART PORTLET-->
+    </div>
+
+</div>
+
+<script src="~/Content/assets/global/plugins/amcharts/amcharts.js"></script>
+<script src="~/Content/assets/global/plugins/amcharts/radar.js"></script>
+<script src="~/Content/assets/global/plugins/amcharts/serial.js"></script>
+<script src="~/Content/assets/global/plugins/amcharts/themes/light.js"></script>
+<link href="~/Content/assets/global/plugins/amcharts/plugins/export/export.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<link rel="stylesheet" href="~/Content/Plugin/leaflet/leaflet.css" />
+<script src="~/Content/Plugin/leaflet/leaflet.js"></script>
+
+<link rel="stylesheet" href="~/Content/Plugin/leaflet.markercluster/MarkerCluster.css" />
+<link rel="stylesheet" href="~/Content/Plugin/leaflet.markercluster/MarkerCluster.Default.css" />
+<script src="~/Content/Plugin/leaflet.markercluster/leaflet.markercluster.js"></script>

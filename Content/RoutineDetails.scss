@@ -1,0 +1,193 @@
+﻿.routine-details-form {
+    cursor: default;
+
+    select {
+        cursor: pointer;
+    }
+
+    .assign-selection {
+        select {
+            width: calc(100% - 110px);
+            margin-right: 10px;
+            height: 38px;
+        }
+
+        button {
+            width: 100px;
+        }
+    }
+
+    .radio-option {
+        input[type="radio"] {
+            display: none;
+        }
+
+        label.input-label {
+            color: #000;
+            background-color: #fff;
+            border: solid #000 1px;
+            margin-left: 5px;
+        }
+
+        input:checked + label {
+            color: #fff;
+            background-color: #000;
+        }
+
+        input:disabled + label {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    }
+
+    input, textarea, select {
+        max-width: 600px;
+    }
+
+    .form-actions {
+        background-color: transparent;
+        border: none;
+        padding: 20px 0;
+    }
+
+    .user-list {
+        h3 {
+            margin-top: 0;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            border-top: solid 1px #ddd;
+
+        
+            li {
+                padding: 10px 0;
+                border-bottom: solid 1px #ddd;
+                color: #707070;
+
+                &.empty {
+                    display: none;
+
+                    &:only-child {
+                        display: block;
+                    }
+                }
+
+                span.pull-left {
+                    line-height: 24px;
+                }
+            }
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    }
+
+    #activity-properties {
+        button {
+            width: 130px;
+        }
+    }
+
+    #routine-item-list {
+        margin-bottom: 10px;
+
+        &:empty {
+            &::before {
+                content: 'No activities added to routine.';
+                font-size: 26px;
+                font-weight: 200;
+
+                margin: 20px 0;
+                display: block;
+            }
+        }
+    }
+}
+
+.routine-item {
+    background-color: #F5F5F5;
+    border: solid 1px #DCDCDC;
+    position: relative;
+    padding: 20px 50px;
+    padding-bottom: 0;
+    margin-top: 10px;
+
+    // Not working for some reason
+    &.gu-transit .move-grabber, &.gu-mirror .move-grabber {
+        cursor: -webkit-grabbing;
+        cursor: -moz-grabbing;
+        cursor: grabbing;
+    }
+
+    .move-grabber, .delete-icon, .duplicate-icon {
+        position: absolute;
+        transform: translateY(-50%);
+        padding: 10px;
+        transition: color ease 0.4s;
+    }
+
+    .move-grabber {
+        top: 50%;
+        left: 10px;
+        font-size: 18px;
+        cursor: -webkit-grab;
+        cursor: -moz-grab;
+        cursor: grab;
+    }
+
+    .delete-icon {
+        top: 25%;
+        right: 10px;
+        color: #D83238;
+        font-size: 24px;
+        cursor: pointer;
+
+        &:hover {
+            color: #D83238 - #222;
+        }
+    }
+
+    .duplicate-icon {
+        top: 70%;
+        right: 10px;
+        color: #38A949;
+        font-size: 24px;
+        cursor: pointer;
+
+        &:hover {
+            color: #38A949 - #222;
+        }
+    }
+
+    .group-holder {
+        display: inline-block;
+    }
+
+    .form-group {
+        display: inline-block;
+        margin-right: 10px;
+        margin-bottom: 20px;
+        min-width: 200px;
+        margin-left: -4px;
+
+        label {
+            display: block;
+        }
+
+        select, input {
+            display: inline-block;
+            width: 300px;
+            height: 38px;
+        }
+
+        select:disabled {
+            background-color: #EEF1F5;
+            border-color: #C2CAD8;
+            cursor: not-allowed;
+        }
+    }
+}

@@ -1,0 +1,493 @@
+﻿@model Shared.Model.Activity
+
+@section pagepluginstyles {
+    <link rel="stylesheet" href="~/Content/Plugin/leaflet/leaflet.css" />
+}
+
+@section pagestyles {
+    <link href="~/Content/Activity.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/assets/global/plugins/Trumbowyg/ui/trumbowyg.css" rel="stylesheet" type="text/css" />
+}
+
+@section pageplugins {
+    <script src="~/Content/assets/global/plugins/amcharts/amcharts.js"></script>
+    <script src="~/Content/assets/global/plugins/amcharts/serial.js"></script>
+    <script src="~/Content/Plugin/leaflet/leaflet.js"></script>
+}
+
+@section pagescripts {
+    <script src="~/Content/assets/global/plugins/Trumbowyg/trumbowyg.js"></script>
+    <script type="text/javascript">
+        var activityId = "@Model.Id";
+        var activityStartDate = new Date(@Model.StartTime.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds);
+        var paceExtend = {
+            "valueAxes": [{
+                "maximum": 20,
+                "minimum": 0,
+                "reversed": true,
+            },
+            {
+                "id": "fillValueAxis",
+                "maximum": 20,
+                "minimum": 0,
+                "integersOnly": true,
+                "labelFunction": function (value) { return ""; },
+                "gridAlpha": 0,
+                "reversed": false,
+            }],
+            "graphs": [{
+                "fillColors": "",
+                "fillAlphas": 0,
+            },{
+                "id": "g2",
+                "balloonFunction": function (dataItem) { return ""; },
+                "bullet": "none",
+                "lineColor": "#9B9B9B",
+                "lineThickness": 1,
+                "fillColors": "url(#BioFadeGrad)",
+                "fillAlphas": 1,
+                "type": "smoothedLine",
+                "valueField": "ValueMod",
+                "gridAlpha": 0,
+                "valueAxis": "fillValueAxis"
+            }],
+            DataModify: function(data) {
+                for(var i = 0; i < data.length; i++) {
+                    data[i].ValueMod = 20 - data[i].Value;
+                }
+            },
+        };
+
+        var elevationExtend = {
+            "valueAxes": [{
+                "maximum": @(Model.BleDatas.Max(t => t.Elevation) + 100),
+            }],
+        };
+    </script>
+    <script src="~/Scripts/Activity.js"></script>
+}
+
+@{
+    ViewBag.Title = Model.Title;
+    ViewBag.Subtitle = "Activity Details";
+
+    ViewBag.Breadcrumbs = new string[] {
+        "<a href=\"/User/Index\">Users</a>",
+        "<a href=\"/User/Details/" + Model.User.Id + "\">" + Model.User.FirstName + " " + Model.User.LastName + "</a>",
+        "<a href=\"/User/Details/" + Model.User.Id + "?show-activities=true\">Activities</a>"
+    };
+    ViewBag.TitleButton = "<button onclick=\"EmailPopup()\" class=\"btn login-btn\"><i class=\"fa fa-envelope\"></i> Email User</button>";
+
+    var bleData = Model.BleDatas.OrderBy(t => t.DateCreated).ToList();
+    var endBle = bleData.LastOrDefault();
+    var duration = new TimeSpan(0, 0, endBle.Seconds);
+
+    Dictionary<string, string[]> quickStats = new Dictionary<string, string[]>();
+    quickStats.Add("Run", new string[] { "DISTANCE", "ENERGY", "PACE", "AVG_HR", "CADENCE" });
+    quickStats.Add("Cycling", new string[] { "DISTANCE", "ENERGY", "AVG_SPEED", "AVG_HR", "ELEVATION_GAIN" });
+    quickStats.Add("Walk", new string[] { "DISTANCE", "ENERGY", "AVG_SPEED", "AVG_HR", "STEPS" });
+    quickStats.Add("Cross Fit", new string[] { "BURN_RATE", "ENERGY", "MAX_HR", "AVG_HR", "STEPS" });
+    quickStats.Add("Gym", new string[] { "BURN_RATE", "ENERGY", "MAX_HR", "AVG_HR", "STEPS" });
+    quickStats.Add("Running Heart Fitness Test", new string[] { "FITNESS_SCORE", "PREVIOUS_SCORE", "AVG_HR", "PACE" });
+
+    Dictionary<string, string[]> graphSections = new Dictionary<string, string[]>();
+    graphSections.Add("Run", new string[] { "SPEED_WITH_SPLIT", "PACE_WITH_SPLIT", "HR_GRAPH", "CADENCE", "ELEVATION" });
+    graphSections.Add("Cycling", new string[] { "SPEED_WITH_SPLIT", "HR_GRAPH", "ELEVATION" });
+    graphSections.Add("Walk", new string[] { "SPEED_WITH_SPLIT", "HR_GRAPH", "CADENCE", "ELEVATION" });
+    graphSections.Add("Cross Fit", new string[] { "HR_GRAPH_NOTP" });
+    graphSections.Add("Gym", new string[] { "HR_GRAPH_NOTP" });
+    graphSections.Add("Running Heart Fitness Test", new string[] { "SPEED_WITH_SPLIT", "PACE_WITH_SPLIT", "HR_GRAPH", "CADENCE", "ELEVATION" });
+
+}
+
+<div class="user-activity">
+    <div class="stat-line">
+        <div class="activity-stats right-container">
+            <div class="main-stats">
+                <div class="detail-list">
+                    <div class="detail-row">
+                        <h2 class="detail">Type: <span class="value">@ViewBag.ActivityType</span></h2>
+                        @*<h2 class="detail">End: <span class="value" js-date="@Model.EndTime.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds">@Model.EndTime.Value.ToString("hh:mmtt")</span></h2>*@
+                    </div>
+                    <div class="detail-row">
+                        <h2 class="detail">Start: <span class="value" js-date="@Model.StartTime.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds">@Model.StartTime.Value.ToString("hh:mmtt")</span></h2>
+                        <h2 class="detail">Duration: <span class="value">@string.Format("{0}:{1:D2}:{2:D2}", Math.Floor(duration.TotalHours), duration.Minutes, duration.Seconds)</span></h2>
+                    </div>
+                </div>
+            </div>
+            <div class="sub-stats">
+                @QuickStatsBuilder(quickStats[ViewBag.ActivityType], bleData)
+            </div>
+            @if (Model.Type == 5)
+            {
+                var fitnessRanges = new BioConnected.Models.FitnessTestRange(GetUserYears(Model.User.DOB), Model.User.Gender == "Male");
+                <div class="stat-line">
+                    <div class="left-container">
+                        <table class="fitness-score-table">
+                            <tr class="heading"><th colspan="2">Ranking</th></tr>
+                            <tr class="heading"><td colspan="2">@Model.User.Gender, ages @fitnessRanges.AgeRange.Item1-@fitnessRanges.AgeRange.Item2</td></tr>
+                            <tr class="stat"><td>&gt; @(fitnessRanges.Excellent + 1)</td><td>Excellent</td></tr>
+                            <tr class="stat"><td>@fitnessRanges.GoodRange.Item1-@fitnessRanges.GoodRange.Item2</td><td>Good</td></tr>
+                            <tr class="stat"><td>@fitnessRanges.AboveAverageRange.Item1-@fitnessRanges.AboveAverageRange.Item2</td><td>Above Average</td></tr>
+                            <tr class="stat"><td>@fitnessRanges.AverageRange.Item1-@fitnessRanges.AverageRange.Item2</td><td>Average</td></tr>
+                            <tr class="stat"><td>@fitnessRanges.BelowAverageRange.Item1-@fitnessRanges.BelowAverageRange.Item2</td><td>Below Average</td></tr>
+                            <tr class="stat"><td>@fitnessRanges.PoorRange.Item1-@fitnessRanges.PoorRange.Item2</td><td>Poor</td></tr>
+                            <tr class="stat"><td>&lt; @(fitnessRanges.VeryPoor + 1)</td><td>Excellent</td></tr>
+                        </table>
+                    </div>
+                    <div class="right-container">
+                        <div id="activity-bpm-zones"></div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div id="activity-bpm-zones"></div>
+            }
+        </div>
+        <div class="activity-map left-container">
+            <div id="activity-map"></div>
+        </div>
+    </div>
+    @foreach (string stat in graphSections[ViewBag.ActivityType])
+    {
+        <div class="stat-line">
+            @StatGraph(stat, bleData)
+        </div>
+    }
+</div>
+
+@helper QuickStatsBuilder(string[] stats, List<Shared.Model.BleData> bleData)
+{
+var activityCount = 0;
+
+    <div class="detail-list">
+        <div class="detail-col">
+            <div class="detail-col">
+                @foreach (string stat in stats)
+                {
+                    @QuickStat(stat, bleData)
+                    activityCount++;
+
+                    if (activityCount % 2 == 0)
+                    {
+                        @Html.Raw("</div><div class=\"detail-col\">")
+                    }
+
+                    if (activityCount % 4 == 0)
+                    {
+                        @Html.Raw("</div><div class=\"detail-col\">")
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@helper QuickStat(string quickStatName, List<Shared.Model.BleData> bleData)
+{
+string iconName = "";
+string statName = "";
+string statValue = "";
+string statUnit = "";
+
+var metric = ViewBag.DisplayUnit == BioConnected.Models.DisplayUnit.METRIC;
+var meterDivide = metric ? 1000 : 1609.34;
+
+bleData = bleData.OrderBy(t => t.DateCreated).ToList();
+var endBle = bleData.Last();
+
+double hours;
+switch (quickStatName)
+{
+    case "DISTANCE":
+        //iconName = "road";
+        iconName = "distance";
+        statName = "Distance";
+        statValue = Math.Round(endBle.Dist / meterDivide, 2).ToString("00.00");
+        statUnit = metric ? "km" : "mi";
+        break;
+    case "ENERGY":
+        //iconName = "bolt";
+        iconName = "calories";
+        statName = "Energy";
+        statValue = endBle.Cals.ToString();
+        statUnit = "cal";
+        break;
+    case "AVG_SPEED":
+        hours = new TimeSpan(0, 0, endBle.Seconds).TotalHours;
+        //iconName = "tachometer";
+        iconName = "speed";
+        statName = "Avg. Speed";
+        statValue = hours > 0 ? Math.Round((endBle.Dist / meterDivide) / hours, 1).ToString() : "0";
+        statUnit = metric ? "km/h" : "mi/h";
+        break;
+    case "AVG_HR":
+        //iconName = "heartbeat";
+        iconName = "hr";
+        statName = "Heart Rate";
+        statValue = Math.Round(bleData.Average(t => t.BPM)).ToString();
+        statUnit = "bpm";
+        break;
+    case "MAX_HR":
+        //iconName = "heartbeat";
+        iconName = "hr";
+        statName = "Max HR";
+        statValue = bleData.Max(t => t.BPM).ToString();
+        statUnit = "bpm";
+        break;
+    case "STEPS":
+        //iconName = "male";
+        iconName = "steps";
+        statName = "Steps";
+        statValue = endBle.Steps.ToString();
+        statUnit = "";
+        break;
+    case "PACE":
+        //iconName = "tachometer";
+        iconName = "pace";
+        statName = "Pace";
+        var pace = new TimeSpan(0, 0, (int)Math.Round(((endBle.Seconds / 60.0) / (endBle.Dist / meterDivide)) * 60));
+        statValue = endBle.Dist > 0 ? string.Format("{0:D2}:{1:D2}", (int)Math.Floor(pace.TotalMinutes), pace.Seconds) : "00:00";
+        statUnit = metric ? "min/km" : "min/mi";
+        break;
+    case "CADENCE":
+        //iconName = "male";
+        iconName = "steps";
+        statName = "Cadence";
+        statValue = Math.Round(bleData.Average(t => t.SPM)).ToString();
+        statUnit = "spm";
+        break;
+    case "ELEVATION_GAIN":
+        double eleGain = 0;
+        double lastEle = bleData.FirstOrDefault().Elevation;
+        foreach (Shared.Model.BleData data in bleData)
+        {
+            if (data.Elevation >= lastEle)
+            {
+                eleGain = eleGain + (data.Elevation - lastEle);
+            }
+            lastEle = data.Elevation;
+        }
+
+        //iconName = "level-up";
+        iconName = "elevation";
+        statName = "Elevation Gain";
+        statValue = Math.Round(metric ? eleGain : eleGain * 3.28084, 1).ToString();
+        statUnit = metric ? "m" : "ft";
+        break;
+    case "BURN_RATE":
+        hours = new TimeSpan(0, 0, endBle.Seconds).TotalHours;
+        //iconName = "fire";
+        iconName = "calories";
+        statName = "Burn Rate";
+        statValue = hours > 0 ? Math.Round(endBle.Cals / hours, 1).ToString() : "0";
+        statUnit = "cal/h";
+        break;
+    case "FITNESS_SCORE":
+        //iconName = "check";
+        iconName = "calories";
+        statName = "Heart Fitness Score";
+        statValue = ViewBag.FitnessScore;
+        statUnit = "ml/kg/min";
+        break;
+    case "PREVIOUS_SCORE":
+        //iconName = "history";
+        iconName = "last_score";
+        statName = "Previous Score";
+        statValue = ViewBag.PreviousScore == "-" ? "No Previous Test" : ViewBag.PreviousScore;
+        statUnit = ViewBag.PreviousScore == "-" ? "" : "ml/kg/min";
+        break;
+}
+
+    <div class="detail">
+        <img class="stat-image" src="~/Content/assets/staticons/@(iconName).png"> @statName: <span>@statValue @statUnit</span>
+    </div>
+}
+
+@helper StatGraph(string statName, List<Shared.Model.BleData> bleData)
+{
+bleData = bleData.OrderBy(t => t.DateCreated).ToList();
+var endBle = bleData.Last();
+
+var metric = ViewBag.DisplayUnit == BioConnected.Models.DisplayUnit.METRIC;
+var meterDivide = metric ? 1000 : 1609.34;
+var meterFeet = metric ? 1 : 3.28084;
+
+switch (statName)
+{
+    case "SPEED":
+    case "SPEED_WITH_SPLIT":
+            <div class="left-container split-button-container">
+                <h2>Speed</h2>
+                @{
+                    var speed = Math.Round((endBle.Dist / meterDivide) / (endBle.Seconds / 3600.0), 1);
+                    var splitSpeed = Math.Round(ViewBag.BestSplit, 1);
+                }
+                <h4>Average Speed: <span class="value">@speed @(metric ? "km/h" : "mi/h")</span></h4>
+                <h4>Best Split: <span class="value">@splitSpeed @(metric ? "km/h" : "mi/h")</span></h4>
+                @if (statName == "SPEED_WITH_SPLIT")
+                {
+                    <div class="split-buttons">
+                        <button onclick="ToggleSpeedSplitsDisplay();" id="speed-splits-toggle" class="btn delete-button split-toggle">Show Splits</button>
+                        <div id="speed-splits-option-holder" style="display: none;">
+                            <button onclick="ToggleSpeedSplitsType();" class="btn delete-button" id="speed-splits-type">Switch to Time</button>
+                            <select id="speed-splits-time-measure" style="display: none;">
+                                <option value="1">1:00</option>
+                                <option value="2">2:00</option>
+                                <option value="3">3:00</option>
+                                <option value="4">4:00</option>
+                                <option value="5">5:00</option>
+                            </select>
+                            <select id="speed-splits-distance-measure">
+                                <option value="1">1 @(metric ? "km" : "mi")</option>
+                                <option value="2">2 @(metric ? "km" : "mi")</option>
+                                <option value="3">3 @(metric ? "km" : "mi")</option>
+                                <option value="4">4 @(metric ? "km" : "mi")</option>
+                                <option value="5">5 @(metric ? "km" : "mi")</option>
+                            </select>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="right-container">
+                <div id="activity-speed-graph" class="chart amcharts-autofetch" attr="Speed" value-format="@(metric ? "kmh" : "mih")"></div>
+                @if (statName == "SPEED_WITH_SPLIT")
+                {
+                    <div id="speed-split-graph-holder" style="display: none;">
+                        <div id="activity-speed-split-time" class="chart amcharts-autofetch-split" attr="SpeedTime" value-format="@(metric ? "kmh" : "mih")" style="display: none;"></div>
+                        <div id="activity-speed-split-distance" class="chart amcharts-autofetch-split" attr="SpeedDistance" value-format="@(metric ? "kmh" : "mih")"></div>
+                    </div>
+                }
+            </div>
+        break;
+    case "PACE":
+    case "PACE_WITH_SPLIT":
+            <div class="left-container split-button-container">
+                <h2>Pace</h2>
+                @{
+                    var pace = new TimeSpan(0, 0, (int)Math.Round(((endBle.Seconds / 60.0) / (endBle.Dist / meterDivide)) * 60));
+                    var splitPace = new TimeSpan(0, 0, (int)((60 / ViewBag.BestSplit) * 60));
+                }
+                <h4>Average Pace: <span class="value">@(endBle.Dist > 0 ? string.Format("{0:D2}:{1:D2}", (int)Math.Floor(pace.TotalMinutes), pace.Seconds) : "00:00") @(metric ? "min/km" : "min/mi")</span></h4>
+                <h4>Best Split: <span class="value">@string.Format("{0:D2}:{1:D2}", (int)Math.Floor(splitPace.TotalMinutes), splitPace.Seconds) @(metric ? "min/km" : "min/mi")</span></h4>
+                @if (statName == "PACE_WITH_SPLIT")
+                {
+                    <div class="split-buttons">
+                        <button onclick="TogglePaceSplitsDisplay();" id="pace-splits-toggle" class="btn delete-button split-toggle">Hide Splits</button>
+                        <div id="pace-splits-option-holder">
+                            <button onclick="TogglePaceSplitsType();" class="btn delete-button" id="pace-splits-type">Switch to Time</button>
+                            <select id="pace-splits-time-measure" style="display: none;">
+                                <option value="1">1:00</option>
+                                <option value="2">2:00</option>
+                                <option value="3">3:00</option>
+                                <option value="4">4:00</option>
+                                <option value="5">5:00</option>
+                            </select>
+                            <select id="pace-splits-distance-measure">
+                                <option value="1">1 @(metric ? "km" : "mi")</option>
+                                <option value="2">2 @(metric ? "km" : "mi")</option>
+                                <option value="3">3 @(metric ? "km" : "mi")</option>
+                                <option value="4">4 @(metric ? "km" : "mi")</option>
+                                <option value="5">5 @(metric ? "km" : "mi")</option>
+                            </select>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="right-container">
+                <div id="activity-pace-graph" class="chart amcharts-autofetch" attr="Pace" value-format="@(metric ? "pacekm" : "pacemi")" extend-obj="paceExtend" style="display: none;"></div>
+                @if (statName == "PACE_WITH_SPLIT")
+                {
+                    <div id="pace-split-graph-holder">
+                        <div id="activity-pace-split-time" class="chart amcharts-autofetch-split" attr="PaceTime" value-format="@(metric ? "pacekm" : "pacemi")" style="display: none;"></div>
+                        <div id="activity-pace-split-distance" class="chart amcharts-autofetch-split" attr="PaceDistance" value-format="@(metric ? "pacekm" : "pacemi")"></div>
+                    </div>
+                }
+            </div>
+        break;
+    case "HR_GRAPH":
+    case "HR_GRAPH_NOTP":
+        <div class="left-container">
+            <h2>Heart Rate</h2>
+            <h4>Max Heart Rate: <span class="value">@bleData.Max(t => t.BPM) bpm</span></h4>
+            <h4>Average Heart Rate: <span class="value">@Math.Round(bleData.Average(t => t.BPM)) bpm</span></h4>
+            @if (statName == "HR_GRAPH")
+            {
+                <h4>Training Points: <span class="value">@Math.Round(bleData.Sum(t => t.Score), 1)</span></h4>
+            }
+        </div>
+        <div class="right-container">
+            <div id="activity-bpm-graph" class="chart amcharts-autofetch" attr="BPM" value-format="bpm"></div>
+        </div>
+        break;
+    case "CADENCE":
+        <div class="left-container">
+            <h2>Cadence</h2>
+            <h4>Max Cadence: <span class="value">@bleData.Max(t => t.SPM) spm</span></h4>
+            <h4>Average Cadence: <span class="value">@Math.Round(bleData.Average(t => t.SPM)) spm</span></h4>
+            <h4>Total Steps: <span class="value">@bleData.Max(t => t.Steps)</span></h4>
+        </div>
+        <div class="right-container">
+            <div id="activity-cadence-graph" class="chart amcharts-autofetch" attr="Cadence" value-format="spm"></div>
+        </div>
+        break;
+    case "ELEVATION":
+        double eleGain = 0;
+        double eleLoss = 0;
+        double lastEle = bleData.FirstOrDefault().Elevation;
+        bleData.ForEach(t =>
+        {
+            if (t.Elevation >= lastEle)
+                eleGain = eleGain + (t.Elevation - lastEle);
+            else if (t.Elevation < lastEle)
+                eleLoss = eleLoss - (lastEle - t.Elevation);
+
+            lastEle = t.Elevation;
+        });
+
+        <div class="left-container">
+            <h2>Elevation</h2>
+            <h4>Elevation Gain: <span class="value">@Math.Round(eleGain * meterFeet, 1) @(metric ? "m" : "ft")</span></h4>
+            <h4>Downhill Total: <span class="value">@Math.Round(eleLoss * meterFeet, 1) @(metric ? "m" : "ft")</span></h4>
+            <h4>Max Altitude: <span class="value">@Math.Round(bleData.Max(t => t.Elevation * meterFeet)) @(metric ? "m" : "ft")</span></h4>
+            <h4>Min Altitude: <span class="value">@Math.Round(bleData.Min(t => t.Elevation * meterFeet)) @(metric ? "m" : "ft")</span></h4>
+        </div>
+        <div class="right-container">
+            <div id="activity-elevation-graph" class="chart amcharts-autofetch" attr="Elevation" value-format="@(metric ? "m" : "ft")" extend-obj="elevationExtend"></div>
+        </div>
+            break;
+    }
+}
+
+@functions {
+    int GetUserYears(DateTime DOB)
+    {
+        var now = DateTime.UtcNow;
+        return (now.Year - DOB.Year - 1) +
+            (((now.Month > DOB.Month) ||
+            ((now.Month == DOB.Month) && (now.Day >= DOB.Day))) ? 1 : 0);
+    }
+}
+
+<div class="modal fade" id="user-email-dialog" data-backdrop="static">
+    <div class="modal-dialog modal-small">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Send Email to User</h4>
+            </div>
+            <div class="modal-body">
+                <h5>Subject</h5>
+                <input id="user-email-subject" class="form-control" type="text" />
+                <div class="user-email-container">
+                    <textarea class="user-email-area"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="user-email-back" type="button" class="btn btn-back sbold uppercase">Back</button>
+                <button id="user-email-send" type="button" class="btn login-btn sbold uppercase" data-dismiss="modal">Send</button>
+            </div>
+        </div>
+    </div>
+</div>

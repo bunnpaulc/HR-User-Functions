@@ -1,0 +1,128 @@
+﻿@using Shared.Model
+@model Tuple<User, Routine[]>
+
+@if (Model.Item2.Count() > 0)
+{
+    foreach (Routine routine in Model.Item2)
+    {
+        <h2 class="title"><span class="bold">@routine.Name</span> - @Model.Item1.Activities.Count(t => t.RoutineItem != null && t.RoutineItem.RoutineId == routine.Id) @(Model.Item1.Activities.Count(t => t.RoutineItem != null && t.RoutineItem.RoutineId == routine.Id) == 1 ? "Activity" : "Activities") Completed</h2>
+        foreach (RoutineItem item in routine.RoutineItems)
+        {
+            <div class="row accordion" id="@item.Id-accordian">
+                <div class="panel panel-default" style="margin-bottom: 0;">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a class="accordion-toggle accordion-toggle-styled collapsed no-filter" data-toggle="collapse" data-parent="#@item.Id-accordian" href="#@item.Id-accordian-body">
+                                @if (GetActivityType(item.ActivityType) == "Any")
+                                {
+                                    <text>
+                                    <span class="bold">Activity Type: </span>@GetActivityType(item.ActivityType) | @item.Instruction, @item.Setting
+                                    </text>
+                                }
+                                else
+                                {
+                                    <text>
+                                    <span class="bold">@GetActivityType(item.ActivityType):</span> @item.Instruction, @item.Setting - @item.Activities.Count(t => t.UserId == Model.Item1.Id) @(item.Activities.Count(t => t.UserId == Model.Item1.Id) == 1 ? "Activity" : "Activities") Completed
+                                    </text>
+                                }
+                                
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="@item.Id-accordian-body" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <div class="datatable-holder">
+                                <div class="row">
+                                    <table class="table table-striped table-bordered table-hover dt-responsive dt-helper-table" draw-filter="@item.Id" draw-context="ContextData" ajax-url="/User/RoutineRowJSON">
+                                        <thead>
+                                            <tr>
+                                                <th>Date of Activity</th>
+                                                <th>Activity Name</th>
+                                                <th>Activity Type</th>
+                                                <th>Duration</th>
+                                                <th class="all">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tfoot>
+                                            <tr></tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+}
+else
+{
+    <h2 class="title">No Routines Assigned</h2>
+}
+
+
+
+        <script type="text/javascript">
+            var dtOrder = [[0, 'desc']];
+            var SaferMeDTCols = [
+                {
+                    "data": "StartTime",
+                    "name": "Date of Activity",
+                    "responsivePriority": 0,
+                    "searchable": false,
+                },
+                {
+                    "data": "Title",
+                    "name": "Activity Name",
+                    "responsivePriority": 0,
+                },
+                {
+                    "data": "Type",
+                    "name": "Activity Type",
+                    "responsivePriority": 1,
+                    "searchable": false,
+                },
+                {
+                    "data": "Seconds",
+                    "name": "Duration",
+                    "responsivePriority": 1,
+                    "searchable": false,
+                },
+                {
+                    "data": "Actions",
+                    "responsivePriority": 0,
+                    "orderable": false,
+                    "searchable": false,
+                },
+            ];
+        </script>
+
+        @functions {
+            string GetActivityType(int ActivityType)
+            {
+                switch (ActivityType)
+                {
+                    case 0:
+                        return "Run";
+                    case 1:
+                        return "Cycling";
+                    case 2:
+                        return "Walk";
+                    case 3:
+                        return "Cross Fit";
+                    case 4:
+                        return "Gym";
+                    case 5:
+                        return "Running Heart Fitness Test";
+                    case 6:
+                        return "Heart and Mind (HRV)";
+                    case 7:
+                        return "Rest";
+                    case 8:
+                        return "Any";
+                    default:
+                        return "Run";
+                }
+            }
+        }
